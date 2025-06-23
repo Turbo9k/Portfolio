@@ -43,7 +43,7 @@ export default function Portfolio() {
       try {
         const response = await fetch("/api/projects")
         const data = await response.json()
-        setProjects(data.projects || [])
+        setProjects(data.data?.projects || data.projects || [])
       } catch (error) {
         console.error("Failed to load projects:", error)
         // Fallback to default projects if API fails

@@ -86,7 +86,7 @@ export default function AdminDashboard() {
       const response = await fetch("/api/projects")
       if (!response.ok) throw new Error("Failed to fetch projects")
       const data = await response.json()
-      setProjects(data.projects || [])
+      setProjects(data.data?.projects || data.projects || [])
     } catch (error) {
       console.error("Failed to load projects:", error)
       showMessage("error", "Failed to load projects")

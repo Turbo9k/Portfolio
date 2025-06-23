@@ -118,31 +118,11 @@ export default function ProjectsPage() {
           </p>
         </motion.div>
 
-        {/* Featured Projects */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-16"
-        >
-          <h3 className="text-3xl font-bold mb-8 flex items-center gap-3">
-            <Star className="w-8 h-8 text-yellow-400" />
-            Featured Projects
-          </h3>
-          <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {allProjects
-              .filter((project) => project.featured)
-              .map((project, index) => (
-                <ProjectCard key={project.title} project={project} index={index} />
-              ))}
-          </div>
-        </motion.div>
-
         {/* All Projects */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           <h3 className="text-3xl font-bold mb-8">All Projects</h3>
           <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
