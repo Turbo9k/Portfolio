@@ -10,6 +10,7 @@ import Link from "next/link"
 
 export default function ParallaxPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [windowDimensions, setWindowDimensions] = useState({ width: 1200, height: 800 })
   const [gameActive, setGameActive] = useState(false)
   const [score, setScore] = useState(0)
   const [particles, setParticles] = useState<
@@ -28,6 +29,7 @@ export default function ParallaxPage() {
   >([])
   const [lastMousePosition, setLastMousePosition] = useState({ x: 0, y: 0 })
   const [mouseSpeed, setMouseSpeed] = useState(0)
+  const [isClient, setIsClient] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll()
@@ -52,7 +54,34 @@ export default function ParallaxPage() {
     orange: "#f97316",
   }
 
+  // Set client-side flag and window dimensions
   useEffect(() => {
+    setIsClient(true)
+    if (typeof window !== 'undefined') {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+  }, [])
+
+  // Update window dimensions on resize
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleResize = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     const updateMousePosition = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
@@ -61,18 +90,19 @@ export default function ParallaxPage() {
   }, [])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     // Create floating particles with dynamic properties
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
+      x: Math.random() * windowDimensions.width,
+      y: Math.random() * windowDimensions.height,
       vx: (Math.random() - 0.5) * (particleSpeed / 2),
       vy: (Math.random() - 0.5) * (particleSpeed / 2),
       color: colorOptions[particleColor as keyof typeof colorOptions],
       size: particleSize,
     }))
     setParticles(newParticles)
-  }, [particleCount, particleSpeed, particleColor, particleSize])
+  }, [particleCount, particleSpeed, particleColor, particleSize, windowDimensions])
 
   // Game particle management
   useEffect(() => {
@@ -125,6 +155,18 @@ export default function ParallaxPage() {
 
   // Add this state for better mouse tracking
   const [gameMousePosition, setGameMousePosition] = useState({ x: 0, y: 0 })
+
+  // Don't render anything until client-side
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading Parallax Experience...</h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
@@ -238,8 +280,8 @@ export default function ParallaxPage() {
             animate={{
               y: [0, -20 * (particleSpeed / 5), 0],
               x: [
-                (mousePosition.x - window.innerWidth / 2) / (100 - mouseSensitivity),
-                (mousePosition.x - window.innerWidth / 2) / (120 - mouseSensitivity),
+                (mousePosition.x - windowDimensions.width / 2) / (100 - mouseSensitivity),
+                (mousePosition.x - windowDimensions.width / 2) / (120 - mouseSensitivity),
               ],
               rotate: [0, 180 * (particleSpeed / 5), 360 * (particleSpeed / 5)],
             }}
