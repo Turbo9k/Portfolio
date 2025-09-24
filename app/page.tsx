@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Github, ExternalLink, Mail, MapPin, Download, Code, Palette, Zap, Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { MobileNav } from "@/components/mobile-nav"
-import { ContactForm } from "@/components/contact-form"
+import dynamic from "next/dynamic"
+const MobileNav = dynamic(() => import("@/components/mobile-nav").then(m => m.MobileNav), { ssr: false })
+const ContactForm = dynamic(() => import("@/components/contact-form").then(m => m.ContactForm), { ssr: false })
 
 interface Project {
   id: string
@@ -27,46 +28,49 @@ interface Project {
 export default function Portfolio() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [projects, setProjects] = useState<Project[]>([])
+  const [reducedMotion, setReducedMotion] = useState(false)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
   useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener("mousemove", updateMousePosition)
-    return () => window.removeEventListener("mousemove", updateMousePosition)
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const set = () => setReducedMotion(media.matches)
+    set()
+    media.addEventListener?.("change", set)
+    return () => media.removeEventListener?.("change", set)
   }, [])
 
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        const response = await fetch("/api/projects")
-        const data = await response.json()
-        // Fix: Handle the API response structure correctly
-        setProjects(data.data?.projects || data.projects || [])
-      } catch (error) {
-        console.error("Failed to load projects:", error)
-        // Fallback to default projects if API fails
-        setProjects([
-          {
-            id: "dynamic-dashboard",
-            title: "Dynamic Dashboard",
-            description:
-              "Real-time data visualization with animated charts, interactive elements, and drag-and-drop functionality. Features live notifications and responsive design.",
-            image: "⚡",
-            tech: ["JavaScript", "D3.js", "CSS3", "HTML5"],
-            liveUrl: "/dashboard",
-            githubUrl: "#",
-            featured: true,
-            color: "from-blue-500 to-purple-600",
-            status: "Live",
-          },
-        ])
-      }
+    if (reducedMotion) return
+    let raf = 0
+    const updateMousePosition = (e: MouseEvent) => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => setMousePosition({ x: e.clientX, y: e.clientY }))
     }
+    window.addEventListener("mousemove", updateMousePosition)
+    return () => {
+      window.removeEventListener("mousemove", updateMousePosition)
+      cancelAnimationFrame(raf)
+    }
+  }, [reducedMotion])
 
-    loadProjects()
+  useEffect(() => {
+    const load = () => {
+      ;(async () => {
+        try {
+          const response = await fetch("/api/projects")
+          const data = await response.json()
+          setProjects(data.data?.projects || data.projects || [])
+        } catch (error) {
+          console.error("Failed to load projects:", error)
+        }
+      })()
+    }
+    if ("requestIdleCallback" in window) {
+      ;(window as any).requestIdleCallback(load, { timeout: 1500 })
+    } else {
+      setTimeout(load, 800)
+    }
   }, [])
 
   const skillTags = {
@@ -82,27 +86,23 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]" />
-        <motion.div
-          className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
-          animate={{
-            x: mousePosition.x / 10,
-            y: mousePosition.y / 10,
-          }}
-          transition={{ type: "spring", stiffness: 50, damping: 30 }}
-          style={{ left: "10%", top: "20%" }}
-        />
-        <motion.div
-          className="absolute w-96 h-96 bg-gradient-to-r from-teal-500/20 to-green-500/20 rounded-full blur-3xl"
-          animate={{
-            x: -mousePosition.x / 15,
-            y: -mousePosition.y / 15,
-          }}
-          transition={{ type: "spring", stiffness: 50, damping: 30 }}
-          style={{ right: "10%", bottom: "20%" }}
-        />
-      </div>
+      {!reducedMotion && (
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.08),transparent_50%)]" />
+          <motion.div
+            className="absolute hidden lg:block w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+            animate={{ x: mousePosition.x / 10, y: mousePosition.y / 10 }}
+            transition={{ type: "spring", stiffness: 50, damping: 30 }}
+            style={{ left: "10%", top: "20%" }}
+          />
+          <motion.div
+            className="absolute hidden lg:block w-96 h-96 bg-gradient-to-r from-teal-500/20 to-green-500/20 rounded-full blur-3xl"
+            animate={{ x: -mousePosition.x / 15, y: -mousePosition.y / 15 }}
+            transition={{ type: "spring", stiffness: 50, damping: 30 }}
+            style={{ right: "10%", bottom: "20%" }}
+          />
+        </div>
+      )}
 
       {/* Navigation */}
       <motion.nav
