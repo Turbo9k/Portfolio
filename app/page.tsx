@@ -70,29 +70,10 @@ export default function Portfolio() {
   }, [])
 
   const skillTags = {
-    frontend: [
-      "JavaScript",
-      "React",
-      "Next.js",
-      "TypeScript",
-      "CSS3",
-      "SCSS",
-      "HTML5",
-      "D3.js",
-      "Canvas API",
-    ],
-    backend: ["Node.js", "Express.js", "Socket.io"],
-    database: ["MongoDB", "PostgreSQL", "MySQL", "LocalStorage"],
-    other: [
-      "Auth / JWT / OAuth",
-      "REST APIs",
-      "WebSockets",
-      "Stripe payments",
-      "Git",
-      "Figma",
-      "Vercel",
-      "CI/CD",
-    ],
+    frontend: ["React", "Next.js", "CSS/SCSS", "TypeScript"],
+    backend: ["Node.js", "Express"],
+    database: ["MongoDB"],
+    other: ["Git", "Figma", "Vercel", "REST APIs"],
   }
 
   // Get featured projects for display
@@ -216,7 +197,6 @@ export default function Portfolio() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
@@ -227,8 +207,6 @@ export default function Portfolio() {
                 <Mail className="w-5 h-5 mr-2" />
                 Get In Touch
               </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 variant="outline"
                 size="lg"
@@ -240,7 +218,6 @@ export default function Portfolio() {
                 View Projects
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              </motion.div>
             </motion.div>
           </motion.div>
 
@@ -394,14 +371,13 @@ export default function Portfolio() {
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold mb-4 text-white">My Journey</h3>
                   <p className="text-gray-300 leading-relaxed mb-4">
-                    I started with frontend fundamentals (HTML, CSS, JavaScript) and quickly moved into React and
-                    Next.js to build interactive UIs. Curious about end-to-end product delivery, I learned Node.js and
-                    databases to design and deploy full-stack apps.
+                    Based in the beautiful state of Colorado, I'm a passionate developer who believes in creating
+                    digital experiences that not only function flawlessly but also captivate and inspire.
                   </p>
                   <p className="text-gray-300 leading-relaxed">
-                    Recent milestones include shipping an e‑commerce demo with Stripe, building an admin dashboard with
-                    role-based auth, and deploying projects to Vercel with production-ready environments. I'm excited
-                    to collaborate internationally and would love opportunities in Japan as well.
+                    My journey in development is driven by curiosity and a love for interactive design. I specialize in
+                    crafting websites and applications that respond to user interaction in meaningful ways, creating
+                    memorable experiences that leave lasting impressions.
                   </p>
                 </CardContent>
               </Card>
@@ -616,39 +592,7 @@ export default function Portfolio() {
                         </a>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-sky-500/20 rounded-full flex items-center justify-center">
-                        {/* LinkedIn icon substitute with Mail for consistency, or add a simple "in" */}
-                        <span className="text-sky-400 font-bold">in</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-white">LinkedIn</h4>
-                        <a
-                          href="https://www.linkedin.com/in/iansiats"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-300 hover:text-sky-400 transition-colors"
-                        >
-                          linkedin.com/in/iansiats
-                        </a>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-400/20 rounded-full flex items-center justify-center">
-                        <span className="text-blue-400 font-bold">X</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-white">Twitter</h4>
-                        <a
-                          href="https://twitter.com/iansiats"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-300 hover:text-blue-400 transition-colors"
-                        >
-                          twitter.com/iansiats
-                        </a>
-                      </div>
-                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -663,7 +607,7 @@ export default function Portfolio() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-center md:text-left">
-              © 2024 Ian Siats. Crafted with passion in Colorado. • Last updated: 09/2025 • Built with Next.js & Vercel
+              © 2024 Ian Siats. Crafted with passion in Colorado.
             </p>
             <div className="flex items-center gap-6">
               <Link

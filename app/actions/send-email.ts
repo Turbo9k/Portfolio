@@ -9,6 +9,12 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function sendEmail(formData: FormData): Promise<ContactFormResponse> {
   try {
+    // Honeypot spam check
+    const honeypot = (formData.get("company") as string) || ""
+    if (honeypot.trim().length > 0) {
+      return { success: true, message: "Thanks!" }
+    }
+
     const data = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
