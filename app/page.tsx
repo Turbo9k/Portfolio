@@ -47,12 +47,27 @@ export default function Portfolio() {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => setMousePosition({ x: e.clientX, y: e.clientY }))
     }
-    window.addEventListener("mousemove", updateMousePosition)
+    window.addEventListener("mousemove", updateMousePosition, { passive: true })
     return () => {
       window.removeEventListener("mousemove", updateMousePosition)
       cancelAnimationFrame(raf)
     }
   }, [reducedMotion])
+
+  // Warm up lazily-loaded components during idle to avoid INP spikes on first interaction
+  useEffect(() => {
+    const warm = () => {
+      // Trigger the dynamic imports
+      import("@/components/mobile-nav").then(() => {}).catch(() => {})
+      import("@/components/contact-form").then(() => {}).catch(() => {})
+    }
+    if ("requestIdleCallback" in window) {
+      ;(window as any).requestIdleCallback(warm, { timeout: 2000 })
+    } else {
+      const t = setTimeout(warm, 1200)
+      return () => clearTimeout(t)
+    }
+  }, [])
 
   useEffect(() => {
     const load = () => {
