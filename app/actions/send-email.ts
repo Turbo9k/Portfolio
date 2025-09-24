@@ -4,7 +4,7 @@ import type { ContactFormResponse } from "@/lib/types"
 import { validateContactForm } from "@/lib/validations"
 import { Resend } from "resend"
 
-const resendApiKey = process.env.RESEND_API_KEY
+const resendApiKey = process.env.RESEND_API_KEY || (process.env as any).Resend_API_KEY
 const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function sendEmail(formData: FormData): Promise<ContactFormResponse> {
