@@ -70,10 +70,20 @@ export default function Portfolio() {
   }, [])
 
   const skillTags = {
-    frontend: ["React", "Next.js", "CSS/SCSS", "TypeScript"],
-    backend: ["Node.js", "Express"],
-    database: ["MongoDB"],
-    other: ["Git", "Figma", "Vercel", "REST APIs"],
+    frontend: [
+      "JavaScript",
+      "React",
+      "Next.js",
+      "TypeScript",
+      "CSS3",
+      "SCSS",
+      "HTML5",
+      "D3.js",
+      "Canvas API",
+    ],
+    backend: ["Node.js", "Express.js", "Socket.io"],
+    database: ["MongoDB", "PostgreSQL", "MySQL", "LocalStorage"],
+    other: ["Stripe API", "Git", "Figma", "Vercel", "REST APIs"],
   }
 
   // Get featured projects for display
