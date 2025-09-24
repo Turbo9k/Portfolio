@@ -10,6 +10,7 @@ import Link from "next/link"
 export default function ProjectsPage() {
   const allProjects = [
     {
+      id: "dynamic-dashboard",
       title: "Dynamic Dashboard",
       description:
         "Real-time data visualization with animated charts, interactive elements, and drag-and-drop functionality. Features live notifications and responsive design.",
@@ -22,6 +23,7 @@ export default function ProjectsPage() {
       status: "Live",
     },
     {
+      id: "ecommerce-platform",
       title: "E-Commerce Platform",
       description:
         "Modern e-commerce solution with product management, payment integration, and real-time inventory tracking.",
@@ -34,6 +36,7 @@ export default function ProjectsPage() {
       status: "Live",
     },
     {
+      id: "advanced-calculator",
       title: "Advanced Calculator",
       description:
         "Sophisticated calculator with scientific functions, history tracking, memory operations, and modern UI design.",
@@ -46,6 +49,7 @@ export default function ProjectsPage() {
       status: "Live",
     },
     {
+      id: "parallax-experience",
       title: "Parallax Experience",
       description:
         "Immersive scrolling experience with parallax effects, mouse tracking, floating particles, and interactive mini-games.",
@@ -58,6 +62,7 @@ export default function ProjectsPage() {
       status: "Live",
     },
     {
+      id: "cognivex-admin",
       title: "Cognivex Admin",
       description:
         "Comprehensive admin dashboard with JWT authentication, role management, and real-time monitoring capabilities.",
@@ -70,6 +75,7 @@ export default function ProjectsPage() {
       status: "Live",
     },
     {
+      id: "task-management-app",
       title: "Task Management App",
       description:
         "Collaborative task management with real-time updates, team collaboration, and project tracking features.",
@@ -150,7 +156,7 @@ function ProjectCard({ project, index }: { project: any; index: number }) {
           <div
             className={`h-48 bg-gradient-to-br ${project.color} flex items-center justify-center text-6xl relative overflow-hidden`}
           >
-            <span className="relative z-10">{project.image}</span>
+            <span className="relative z-10" aria-hidden>{project.image}</span>
 
             {/* Status Badge */}
             <Badge
@@ -181,7 +187,7 @@ function ProjectCard({ project, index }: { project: any; index: number }) {
                   asChild
                   className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100"
                 >
-                  <Link href={project.liveUrl}>
+                  <Link prefetch={false} href={project.liveUrl}>
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Live Demo
                   </Link>
@@ -194,7 +200,7 @@ function ProjectCard({ project, index }: { project: any; index: number }) {
                   asChild
                   className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-200 border-white/30 hover:bg-white/20"
                 >
-                  <Link href={project.githubUrl}>
+                  <Link prefetch={false} href={project.githubUrl}>
                     <Github className="w-4 h-4 mr-2" />
                     Code
                   </Link>
@@ -204,7 +210,11 @@ function ProjectCard({ project, index }: { project: any; index: number }) {
           </div>
 
           <div className="p-6">
-            <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
+            <h3 className="text-xl font-bold text-white mb-3">
+              <Link prefetch={false} href={`/projects/${project.id}`} className="hover:underline">
+                {project.title}
+              </Link>
+            </h3>
             <p className="text-gray-300 mb-4 leading-relaxed">{project.description}</p>
             <div className="flex flex-wrap gap-2 mb-4">
               {project.tech.map((tech: string) => (

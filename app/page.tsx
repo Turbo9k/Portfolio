@@ -126,14 +126,14 @@ export default function Portfolio() {
             <Link href="#about" className="hover:text-blue-400 transition-colors">
               About
             </Link>
-            <Link href="#projects" className="hover:text-blue-400 transition-colors">
+            <Link prefetch={false} href="#projects" className="hover:text-blue-400 transition-colors">
               Projects
             </Link>
-            <Link href="#contact" className="hover:text-blue-400 transition-colors">
+            <Link prefetch={false} href="#contact" className="hover:text-blue-400 transition-colors">
               Contact
             </Link>
             <Button variant="outline" size="sm" className="bg-white/10 border-white/20 hover:bg-white/20" asChild>
-              <Link href="/resume">
+              <Link prefetch={false} href="/resume">
                 <Download className="w-4 h-4 mr-2" />
                 Resume
               </Link>
@@ -191,13 +191,21 @@ export default function Portfolio() {
               I build full-stack applications using modern JavaScript frameworks. My recent work includes interactive UIs,
               backend APIs, and deploying full-stack projects using Vercel and MongoDB.
             </motion.p>
+            <motion.p
+              className="text-sm sm:text-base text-gray-400 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Open to relocation and remote opportunities worldwide.
+            </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <Button
+            <Button
                 size="lg"
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                 onClick={() => {
@@ -207,7 +215,7 @@ export default function Portfolio() {
                 <Mail className="w-5 h-5 mr-2" />
                 Get In Touch
               </Button>
-              <Button
+            <Button
                 variant="outline"
                 size="lg"
                 className="border-white/20 hover:bg-white/10"
@@ -512,7 +520,7 @@ export default function Portfolio() {
             className="text-center mt-12"
           >
             <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10" asChild>
-              <Link href="/projects">
+              <Link prefetch={false} href="/projects">
                 View All Projects
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>

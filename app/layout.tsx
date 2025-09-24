@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description: "Creative developer crafting exceptional digital experiences with cutting-edge web technologies.",
     type: "website",
     locale: "en_US",
-    url: "https://iansiats.dev",
+    url: "https://iansiats.vercel.app",
     siteName: "Ian Siats Portfolio",
     images: [
       {
@@ -64,6 +64,8 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={inter.className}>
         <Suspense fallback={<div>Loading...</div>}>
