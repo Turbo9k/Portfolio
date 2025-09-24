@@ -92,6 +92,11 @@ export function ContactForm() {
     <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
       <CardContent className="p-8">
         <form id="contact-form" action={handleSubmit} className="space-y-6" noValidate>
+          {/* Honeypot field */}
+          <div className="hidden" aria-hidden>
+            <label htmlFor="company">Company</label>
+            <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+          </div>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
               Name *
@@ -164,7 +169,7 @@ export function ContactForm() {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-transform will-change-transform hover:scale-[1.01] active:scale-[0.99]"
           >
             {isPending ? (
               <>
