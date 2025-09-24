@@ -43,6 +43,7 @@ export default function Portfolio() {
       try {
         const response = await fetch("/api/projects")
         const data = await response.json()
+        // Fix: Handle the API response structure correctly
         setProjects(data.data?.projects || data.projects || [])
       } catch (error) {
         console.error("Failed to load projects:", error)
@@ -68,14 +69,12 @@ export default function Portfolio() {
     loadProjects()
   }, [])
 
-  const skills = [
-    { name: "JavaScript", level: 75, icon: "⚡" },
-    { name: "React/Next.js", level: 65, icon: "⚛️" },
-    { name: "CSS/SCSS", level: 80, icon: "🎨" },
-    { name: "Node.js", level: 55, icon: "🟢" },
-    { name: "TypeScript", level: 45, icon: "📘" },
-    { name: "UI/UX Design", level: 70, icon: "✨" },
-  ]
+  const skillTags = {
+    frontend: ["React", "Next.js", "CSS/SCSS", "TypeScript"],
+    backend: ["Node.js", "Express"],
+    database: ["MongoDB"],
+    other: ["Git", "Figma", "Vercel", "REST APIs"],
+  }
 
   // Get featured projects for display
   const featuredProjects = projects.filter((project) => project.featured).slice(0, 4)
@@ -182,6 +181,15 @@ export default function Portfolio() {
             >
               Creative developer crafting exceptional digital experiences with cutting-edge web technologies. I
               transform ideas into interactive, performant applications that users love.
+            </motion.p>
+            <motion.p
+              className="text-base sm:text-lg text-gray-300 mb-8 leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+            >
+              I build full-stack applications using modern JavaScript frameworks. My recent work includes interactive UIs,
+              backend APIs, and deploying full-stack projects using Vercel and MongoDB.
             </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4"
@@ -307,34 +315,46 @@ export default function Portfolio() {
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold mb-6 text-white">Skills & Expertise</h3>
                   <div className="space-y-6">
-                    {skills.map((skill, index) => (
-                      <motion.div
-                        key={skill.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        viewport={{ once: true }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl" role="img" aria-label={skill.name}>
-                              {skill.icon}
-                            </span>
-                            <span className="font-medium text-white">{skill.name}</span>
-                          </div>
-                          <span className="text-blue-400 font-medium">{skill.level}%</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <motion.div
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full"
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${skill.level}%` }}
-                            transition={{ duration: 1, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                          />
-                        </div>
-                      </motion.div>
-                    ))}
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">Frontend</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillTags.frontend.map((t) => (
+                          <Badge key={t} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">Backend</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillTags.backend.map((t) => (
+                          <Badge key={t} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">Database</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillTags.database.map((t) => (
+                          <Badge key={t} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">Other</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillTags.other.map((t) => (
+                          <Badge key={t} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -458,16 +478,24 @@ export default function Portfolio() {
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
                       <p className="text-gray-300 mb-4 leading-relaxed">{project.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {project.tech.map((tech) => (
-                          <Badge
-                            key={tech}
-                            variant="secondary"
-                            className="bg-white/10 text-blue-400 border-blue-500/30"
-                          >
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.tech.map((tech: string) => (
+                          <Badge key={tech} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
                             {tech}
                           </Badge>
                         ))}
+                      </div>
+                      <div className="space-y-1 text-sm text-gray-300">
+                        <p><span className="text-white font-semibold">Role:</span> Full-stack developer</p>
+                        <p>
+                          <span className="text-white font-semibold">Stack:</span> React, Node.js, Express, MongoDB
+                        </p>
+                        <p>
+                          <span className="text-white font-semibold">Summary:</span> Built a responsive e-commerce site with full product management. Users can sign up, add products to cart, and check out with Stripe integration.
+                        </p>
+                        <p>
+                          <span className="text-white font-semibold">Challenges:</span> Learned secure auth, handled async data flow with React hooks, and deployed using Vercel + MongoDB Atlas.
+                        </p>
                       </div>
                     </div>
                   </CardContent>

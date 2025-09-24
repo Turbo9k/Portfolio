@@ -67,7 +67,9 @@ export default function ResumePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <ExternalLink className="w-4 h-4" />
-                    <span>iansiats.dev</span>
+                    <a href="https://iansiats.vercel.app" target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 hover:text-blue-400">
+                      https://iansiats.vercel.app
+                    </a>
                   </div>
                 </div>
               </div>

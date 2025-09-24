@@ -206,12 +206,18 @@ function ProjectCard({ project, index }: { project: any; index: number }) {
           <div className="p-6">
             <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
             <p className="text-gray-300 mb-4 leading-relaxed">{project.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {project.tech.map((tech) => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {project.tech.map((tech: string) => (
                 <Badge key={tech} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
                   {tech}
                 </Badge>
               ))}
+            </div>
+            <div className="space-y-1 text-sm text-gray-300">
+              <p><span className="text-white font-semibold">Role:</span> Full-stack developer</p>
+              <p><span className="text-white font-semibold">Stack:</span> React, Node.js, Express, MongoDB</p>
+              <p><span className="text-white font-semibold">Summary:</span> Built a responsive e-commerce site with full product management. Users can sign up, add products to cart, and check out with Stripe integration.</p>
+              <p><span className="text-white font-semibold">Challenges:</span> Learned secure auth, handled async data flow with React hooks, and deployed using Vercel + MongoDB Atlas.</p>
             </div>
           </div>
         </CardContent>
