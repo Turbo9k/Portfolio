@@ -38,6 +38,8 @@ export default function DashboardPage() {
 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const refreshData = () => {
     setIsRefreshing(true)
@@ -64,11 +66,28 @@ export default function DashboardPage() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const set = () => setReducedMotion(media.matches)
+    set()
+    media.addEventListener?.("change", set)
+
+    const onResize = () => setIsMobile(window.innerWidth < 640)
+    onResize()
+    window.addEventListener("resize", onResize, { passive: true })
+    return () => {
+      media.removeEventListener?.("change", set)
+      window.removeEventListener("resize", onResize)
+    }
+  }, [])
+
   const chartData = Array.from({ length: 12 }, (_, index) => ({
     value: Math.random() * 100,
     revenue: Math.floor(Math.random() * 50000) + 20000,
     month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
   }))
+  const visibleChartData = isMobile ? chartData.slice(0, 8) : chartData
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -97,7 +116,7 @@ export default function DashboardPage() {
             disabled={isRefreshing}
             className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+            <RefreshCw aria-hidden className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh Data
           </Button>
         </div>
@@ -127,7 +146,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-green-400" />
+                    <DollarSign aria-hidden className="w-6 h-6 text-green-400" />
                   </div>
                 </div>
               </CardContent>
@@ -155,7 +174,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-400" />
+                    <Users aria-hidden className="w-6 h-6 text-blue-400" />
                   </div>
                 </div>
               </CardContent>
@@ -183,7 +202,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-purple-400" />
+                    <Activity aria-hidden className="w-6 h-6 text-purple-400" />
                   </div>
                 </div>
               </CardContent>
@@ -211,7 +230,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-teal-500/20 rounded-full flex items-center justify-center">
-                    <BarChart3 className="w-6 h-6 text-teal-400" />
+                    <BarChart3 aria-hidden className="w-6 h-6 text-teal-400" />
                   </div>
                 </div>
               </CardContent>
@@ -363,9 +382,15 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-64 flex items-end gap-2 p-4 relative">
-                  {chartData.map((data, index) => (
+                  {visibleChartData.map((data, index) => (
                     <div key={index} className="flex-1 relative">
-                      <motion.div
+                      {reducedMotion ? (
+                        <div
+                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm"
+                          style={{ height: `${data.value}%` }}
+                        />
+                      ) : (
+                        <motion.div
                         className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative"
                         initial={{ height: 0 }}
                         animate={{ height: `${data.value}%` }}
@@ -376,10 +401,11 @@ export default function DashboardPage() {
                           scale: 1.05,
                           filter: "brightness(1.2)",
                         }}
-                      />
+                        />
+                      )}
 
                       {/* Tooltip */}
-                      {hoveredBar === index && (
+                      {hoveredBar === index && !isMobile && (
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
