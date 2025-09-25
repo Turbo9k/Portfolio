@@ -29,6 +29,9 @@ export default function Portfolio() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [projects, setProjects] = useState<Project[]>([])
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [projectsVisible, setProjectsVisible] = useState(false)
+  const projectsRef = (typeof document !== "undefined" ? (document.getElementById("projects-section") as HTMLElement | null) : null)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
@@ -37,7 +40,13 @@ export default function Portfolio() {
     const set = () => setReducedMotion(media.matches)
     set()
     media.addEventListener?.("change", set)
-    return () => media.removeEventListener?.("change", set)
+    const onResize = () => setIsMobile(window.innerWidth < 640)
+    onResize()
+    window.addEventListener("resize", onResize, { passive: true })
+    return () => {
+      media.removeEventListener?.("change", set)
+      window.removeEventListener("resize", onResize)
+    }
   }, [])
 
   useEffect(() => {
@@ -88,6 +97,29 @@ export default function Portfolio() {
     }
   }, [])
 
+  // Defer rendering of projects grid until in view
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") {
+      setProjectsVisible(true)
+      return
+    }
+    const section = document.getElementById("projects-section")
+    if (!section) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setProjectsVisible(true)
+            io.disconnect()
+          }
+        })
+      },
+      { rootMargin: "200px" },
+    )
+    io.observe(section)
+    return () => io.disconnect()
+  }, [])
+
   const skillTags = {
     frontend: ["React", "Next.js", "CSS/SCSS", "TypeScript"],
     backend: ["Node.js", "Express"],
@@ -101,17 +133,17 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
       {/* Animated Background */}
-      {!reducedMotion && (
+      {!reducedMotion && !isMobile && (
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.08),transparent_50%)]" />
           <motion.div
-            className="absolute hidden lg:block w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+            className="absolute hidden lg:block w-80 h-80 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
             animate={{ x: mousePosition.x / 10, y: mousePosition.y / 10 }}
             transition={{ type: "spring", stiffness: 50, damping: 30 }}
             style={{ left: "10%", top: "20%" }}
           />
           <motion.div
-            className="absolute hidden lg:block w-96 h-96 bg-gradient-to-r from-teal-500/20 to-green-500/20 rounded-full blur-3xl"
+            className="absolute hidden lg:block w-80 h-80 bg-gradient-to-r from-teal-500/20 to-green-500/20 rounded-full blur-3xl"
             animate={{ x: -mousePosition.x / 15, y: -mousePosition.y / 15 }}
             transition={{ type: "spring", stiffness: 50, damping: 30 }}
             style={{ right: "10%", bottom: "20%" }}
@@ -280,7 +312,7 @@ export default function Portfolio() {
               </div>
 
               {/* Floating Icons */}
-              {[Code, Palette, Zap, Star].map((Icon, index) => (
+              {(isMobile ? [Code, Star] : [Code, Palette, Zap, Star]).map((Icon, index) => (
                 <motion.div
                   key={index}
                   className="absolute w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
@@ -425,7 +457,7 @@ export default function Portfolio() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 relative">
+      <section id="projects" className="py-20 relative" aria-label="Featured Projects" id="projects-section">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -445,6 +477,7 @@ export default function Portfolio() {
             </p>
           </motion.div>
 
+          {projectsVisible && (
           <div className="grid lg:grid-cols-2 gap-8">
             {featuredProjects.map((project, index) => (
               <motion.div
@@ -526,6 +559,7 @@ export default function Portfolio() {
               </motion.div>
             ))}
           </div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
