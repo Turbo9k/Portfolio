@@ -32,6 +32,8 @@ export default function Portfolio() {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [projectsVisible, setProjectsVisible] = useState(false)
+  const [aboutVisible, setAboutVisible] = useState(false)
+  const [contactVisible, setContactVisible] = useState(false)
   const projectsRef = (typeof document !== "undefined" ? (document.getElementById("projects-section") as HTMLElement | null) : null)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
@@ -77,6 +79,7 @@ export default function Portfolio() {
       const t = setTimeout(warm, 1200)
       return () => clearTimeout(t)
     }
+    return undefined
   }, [])
 
   useEffect(() => {
@@ -98,27 +101,41 @@ export default function Portfolio() {
     }
   }, [])
 
-  // Defer rendering of projects grid until in view
+  // Defer rendering of sections until in view
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") {
       setProjectsVisible(true)
+      setAboutVisible(true)
+      setContactVisible(true)
       return
     }
-    const section = document.getElementById("projects-section")
-    if (!section) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setProjectsVisible(true)
-            io.disconnect()
-          }
-        })
-      },
-      { rootMargin: "200px" },
-    )
-    io.observe(section)
-    return () => io.disconnect()
+    
+    const sections = [
+      { id: "projects-section", setter: setProjectsVisible },
+      { id: "about-section", setter: setAboutVisible },
+      { id: "contact", setter: setContactVisible }
+    ]
+    
+    const observers = sections.map(({ id, setter }) => {
+      const section = document.getElementById(id)
+      if (!section) return null
+      
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              setter(true)
+              io.disconnect()
+            }
+          })
+        },
+        { rootMargin: "200px" },
+      )
+      io.observe(section)
+      return io
+    }).filter(Boolean)
+    
+    return () => observers.forEach(io => io?.disconnect())
   }, [])
 
   const skillTags = {
@@ -171,7 +188,7 @@ export default function Portfolio() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="#about" className="hover:text-blue-400 transition-colors">
+            <Link href="#about" className="hover:text-blue-400 transition-colors" prefetch={false}>
               About
             </Link>
             <Link prefetch={false} href="#projects" className="hover:text-blue-400 transition-colors">
@@ -312,26 +329,26 @@ export default function Portfolio() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               </div>
 
-              {/* Floating Icons */}
-              {(isMobile ? [Code, Star] : [Code, Palette, Zap, Star]).map((Icon, index) => (
+              {/* Floating Icons - Reduced for mobile */}
+              {(isMobile ? [Code] : [Code, Star]).map((Icon, index) => (
                 <motion.div
                   key={index}
-                  className="absolute w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
+                  className="absolute w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
                   style={{
-                    top: `${20 + index * 20}%`,
-                    left: `${10 + index * 25}%`,
+                    top: `${25 + index * 30}%`,
+                    left: `${15 + index * 30}%`,
                   }}
-                  animate={{
-                    y: [0, -10, 0],
-                    rotate: [0, 360],
+                  animate={reducedMotion ? {} : {
+                    y: [0, -8, 0],
+                    rotate: [0, 180],
                   }}
-                  transition={{
-                    duration: 3 + index,
+                  transition={reducedMotion ? {} : {
+                    duration: 4 + index,
                     repeat: Number.POSITIVE_INFINITY,
-                    delay: index * 0.5,
+                    delay: index * 0.3,
                   }}
                 >
-                  <Icon className="w-6 h-6 text-blue-400" />
+                  <Icon className="w-5 h-5 text-blue-400" />
                 </motion.div>
               ))}
             </div>
@@ -339,10 +356,13 @@ export default function Portfolio() {
         </div>
       </section>
 
-      <AboutSection skillTags={skillTags} />
+      {/* About Section - Dynamically imported and gated */}
+      <div id="about-section">
+        {aboutVisible && <AboutSection skillTags={skillTags} />}
+      </div>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 relative" aria-label="Featured Projects" id="projects-section">
+      <section id="projects-section" className="py-20 relative" aria-label="Featured Projects">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -463,86 +483,88 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 relative">
-        <div className="max-w-4xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Let's Connect
-              </span>
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
-              Ready to create something amazing together? I'm always excited to discuss new opportunities and innovative
-              projects.
-            </p>
-          </motion.div>
+      {/* Contact Section - Gated */}
+      {contactVisible && (
+        <section id="contact" className="py-20 relative">
+          <div className="max-w-4xl mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Let's Connect
+                </span>
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
+                Ready to create something amazing together? I'm always excited to discuss new opportunities and innovative
+                projects.
+              </p>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-bold mb-6 text-white">Get in Touch</h3>
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                        <Mail className="w-6 h-6 text-blue-400" />
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <div className="grid md:grid-cols-2 gap-8">
+                <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                  <CardContent className="p-8">
+                    <h3 className="text-xl font-bold mb-6 text-white">Get in Touch</h3>
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+                          <Mail className="w-6 h-6 text-blue-400" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white">Email</h4>
+                          <a
+                            href="mailto:iansiats9@gmail.com"
+                            className="text-gray-300 hover:text-blue-400 transition-colors"
+                          >
+                            iansiats9@gmail.com
+                          </a>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-white">Email</h4>
-                        <a
-                          href="mailto:iansiats9@gmail.com"
-                          className="text-gray-300 hover:text-blue-400 transition-colors"
-                        >
-                          iansiats9@gmail.com
-                        </a>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                          <MapPin className="w-6 h-6 text-purple-400" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white">Location</h4>
+                          <p className="text-gray-300">Colorado, USA</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-teal-500/20 rounded-full flex items-center justify-center">
+                          <Github className="w-6 h-6 text-teal-400" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white">GitHub</h4>
+                          <a
+                            href="https://github.com/Turbo9k"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-300 hover:text-teal-400 transition-colors"
+                          >
+                            github.com/Turbo9k
+                          </a>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                        <MapPin className="w-6 h-6 text-purple-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-white">Location</h4>
-                        <p className="text-gray-300">Colorado, USA</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-teal-500/20 rounded-full flex items-center justify-center">
-                        <Github className="w-6 h-6 text-teal-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-white">GitHub</h4>
-                        <a
-                          href="https://github.com/Turbo9k"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-300 hover:text-teal-400 transition-colors"
-                        >
-                          github.com/Turbo9k
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <ContactForm />
-            </div>
-          </motion.div>
-        </div>
-      </section>
+                <ContactForm />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="py-8 border-t border-white/10">
@@ -560,7 +582,7 @@ export default function Portfolio() {
               >
                 GitHub
               </Link>
-              <Link href="/projects" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/projects" className="text-gray-400 hover:text-white transition-colors" prefetch={false}>
                 Projects
               </Link>
               <a href="mailto:iansiats9@gmail.com" className="text-gray-400 hover:text-white transition-colors">
