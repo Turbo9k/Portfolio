@@ -83,10 +83,10 @@ export default function DashboardPage() {
   }, [])
 
   const chartData = Array.from({ length: 12 }, (_, index) => {
-    // Create more realistic and varied data
-    const baseValue = 20 + (index * 5) + (Math.sin(index * 0.5) * 15) // More varied pattern
-    const value = Math.max(10, Math.min(95, baseValue + (Math.random() * 20 - 10))) // Ensure 10-95% range
-    const revenue = Math.floor(value * 500) + 10000 // Revenue based on bar height
+    // Create more dramatic and varied data for better visual distinction
+    const baseValue = 15 + (index * 8) + (Math.sin(index * 0.8) * 25) // More dramatic pattern
+    const value = Math.max(8, Math.min(90, baseValue + (Math.random() * 30 - 15))) // Ensure 8-90% range with more variation
+    const revenue = Math.floor(value * 600) + 8000 // Revenue based on bar height
     
     return {
       value,
@@ -388,20 +388,20 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 flex items-end gap-1 p-4 relative">
+                <div className="h-80 flex items-end gap-2 p-6 relative">
                   {visibleChartData.map((data, index) => (
                     <div key={index} className="flex-1 relative min-w-0 flex flex-col">
                       <div className="flex-1 flex items-end">
                         {reducedMotion ? (
                           <div
-                            className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm min-h-[8px] w-full"
-                            style={{ height: `${Math.max(data.value, 8)}%` }}
+                            className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm min-h-[12px] w-full shadow-lg border border-blue-400/30"
+                            style={{ height: `${Math.max(data.value, 12)}%` }}
                           />
                         ) : (
                           <motion.div
-                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative min-h-[8px] w-full"
+                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative min-h-[12px] w-full shadow-lg border border-blue-400/30"
                           initial={{ height: 0 }}
-                          animate={{ height: `${Math.max(data.value, 8)}%` }}
+                          animate={{ height: `${Math.max(data.value, 12)}%` }}
                           transition={{ delay: index * 0.1, duration: 0.5 }}
                           onMouseEnter={() => !isMobile && setHoveredBar(index)}
                           onMouseLeave={() => !isMobile && setHoveredBar(null)}
