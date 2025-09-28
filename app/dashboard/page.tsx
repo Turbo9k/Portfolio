@@ -82,11 +82,18 @@ export default function DashboardPage() {
     }
   }, [])
 
-  const chartData = Array.from({ length: 12 }, (_, index) => ({
-    value: Math.random() * 100,
-    revenue: Math.floor(Math.random() * 50000) + 20000,
-    month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
-  }))
+  const chartData = Array.from({ length: 12 }, (_, index) => {
+    // Create more realistic and varied data
+    const baseValue = 20 + (index * 5) + (Math.sin(index * 0.5) * 15) // More varied pattern
+    const value = Math.max(10, Math.min(95, baseValue + (Math.random() * 20 - 10))) // Ensure 10-95% range
+    const revenue = Math.floor(value * 500) + 10000 // Revenue based on bar height
+    
+    return {
+      value,
+      revenue,
+      month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
+    }
+  })
   const visibleChartData = isMobile ? chartData.slice(0, 6) : chartData
 
   const formatTime = (seconds: number) => {
@@ -383,50 +390,56 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="h-64 flex items-end gap-1 p-4 relative">
                   {visibleChartData.map((data, index) => (
-                    <div key={index} className="flex-1 relative min-w-0">
-                      {reducedMotion ? (
-                        <div
-                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm min-h-[4px]"
-                          style={{ height: `${Math.max(data.value, 5)}%` }}
-                        />
-                      ) : (
-                        <motion.div
-                        className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative min-h-[4px]"
-                        initial={{ height: 0 }}
-                        animate={{ height: `${Math.max(data.value, 5)}%` }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
-                        onMouseEnter={() => !isMobile && setHoveredBar(index)}
-                        onMouseLeave={() => !isMobile && setHoveredBar(null)}
-                        whileHover={isMobile ? {} : {
-                          scale: 1.05,
-                          filter: "brightness(1.2)",
-                        }}
-                        />
-                      )}
+                    <div key={index} className="flex-1 relative min-w-0 flex flex-col">
+                      <div className="flex-1 flex items-end">
+                        {reducedMotion ? (
+                          <div
+                            className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm min-h-[8px] w-full"
+                            style={{ height: `${Math.max(data.value, 8)}%` }}
+                          />
+                        ) : (
+                          <motion.div
+                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative min-h-[8px] w-full"
+                          initial={{ height: 0 }}
+                          animate={{ height: `${Math.max(data.value, 8)}%` }}
+                          transition={{ delay: index * 0.1, duration: 0.5 }}
+                          onMouseEnter={() => !isMobile && setHoveredBar(index)}
+                          onMouseLeave={() => !isMobile && setHoveredBar(null)}
+                          whileHover={isMobile ? {} : {
+                            scale: 1.05,
+                            filter: "brightness(1.2)",
+                          }}
+                          />
+                        )}
 
-                      {/* Mobile tap to show data */}
-                      {isMobile && (
-                        <div 
-                          className="absolute inset-0 cursor-pointer"
-                          onClick={() => setHoveredBar(hoveredBar === index ? null : index)}
-                        />
-                      )}
+                        {/* Mobile tap to show data */}
+                        {isMobile && (
+                          <div 
+                            className="absolute inset-0 cursor-pointer"
+                            onClick={() => setHoveredBar(hoveredBar === index ? null : index)}
+                          />
+                        )}
 
-                      {/* Tooltip */}
-                      {hoveredBar === index && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10"
-                        >
-                          <div className="bg-black/90 backdrop-blur-sm text-white text-xs rounded-lg px-3 py-2 border border-white/20 shadow-lg whitespace-nowrap">
-                            <div className="font-semibold text-blue-400">{data.month}</div>
-                            <div className="text-green-400">${data.revenue.toLocaleString()}</div>
-                            <div className="w-2 h-2 bg-black/90 rotate-45 absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-r border-b border-white/20"></div>
-                          </div>
-                        </motion.div>
-                      )}
+                        {/* Tooltip */}
+                        {hoveredBar === index && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10"
+                          >
+                            <div className="bg-black/90 backdrop-blur-sm text-white text-xs rounded-lg px-3 py-2 border border-white/20 shadow-lg whitespace-nowrap">
+                              <div className="font-semibold text-blue-400">{data.month}</div>
+                              <div className="text-green-400">${data.revenue.toLocaleString()}</div>
+                              <div className="w-2 h-2 bg-black/90 rotate-45 absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-r border-b border-white/20"></div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                      {/* Month labels */}
+                      <div className="text-center text-xs text-gray-400 mt-2">
+                        {data.month}
+                      </div>
                     </div>
                   ))}
                 </div>
