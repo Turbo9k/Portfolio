@@ -87,7 +87,7 @@ export default function DashboardPage() {
     revenue: Math.floor(Math.random() * 50000) + 20000,
     month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
   }))
-  const visibleChartData = isMobile ? chartData.slice(0, 8) : chartData
+  const visibleChartData = isMobile ? chartData.slice(0, 6) : chartData
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -381,38 +381,46 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 flex items-end gap-2 p-4 relative">
+                <div className="h-64 flex items-end gap-1 p-4 relative">
                   {visibleChartData.map((data, index) => (
-                    <div key={index} className="flex-1 relative">
+                    <div key={index} className="flex-1 relative min-w-0">
                       {reducedMotion ? (
                         <div
-                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm"
-                          style={{ height: `${data.value}%` }}
+                          className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm min-h-[4px]"
+                          style={{ height: `${Math.max(data.value, 5)}%` }}
                         />
                       ) : (
                         <motion.div
-                        className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative"
+                        className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-sm cursor-pointer relative min-h-[4px]"
                         initial={{ height: 0 }}
-                        animate={{ height: `${data.value}%` }}
+                        animate={{ height: `${Math.max(data.value, 5)}%` }}
                         transition={{ delay: index * 0.1, duration: 0.5 }}
-                        onMouseEnter={() => setHoveredBar(index)}
-                        onMouseLeave={() => setHoveredBar(null)}
-                        whileHover={{
+                        onMouseEnter={() => !isMobile && setHoveredBar(index)}
+                        onMouseLeave={() => !isMobile && setHoveredBar(null)}
+                        whileHover={isMobile ? {} : {
                           scale: 1.05,
                           filter: "brightness(1.2)",
                         }}
                         />
                       )}
 
+                      {/* Mobile tap to show data */}
+                      {isMobile && (
+                        <div 
+                          className="absolute inset-0 cursor-pointer"
+                          onClick={() => setHoveredBar(hoveredBar === index ? null : index)}
+                        />
+                      )}
+
                       {/* Tooltip */}
-                      {hoveredBar === index && !isMobile && (
+                      {hoveredBar === index && (
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
                           className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10"
                         >
-                          <div className="bg-black/90 backdrop-blur-sm text-white text-xs rounded-lg px-3 py-2 border border-white/20 shadow-lg">
+                          <div className="bg-black/90 backdrop-blur-sm text-white text-xs rounded-lg px-3 py-2 border border-white/20 shadow-lg whitespace-nowrap">
                             <div className="font-semibold text-blue-400">{data.month}</div>
                             <div className="text-green-400">${data.revenue.toLocaleString()}</div>
                             <div className="w-2 h-2 bg-black/90 rotate-45 absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-r border-b border-white/20"></div>
@@ -423,7 +431,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
                 <div className="text-center text-gray-400 text-sm mt-2">
-                  Hover over bars to see detailed revenue data
+                  {isMobile ? "Tap bars to see detailed revenue data" : "Hover over bars to see detailed revenue data"}
                 </div>
               </CardContent>
             </Card>
