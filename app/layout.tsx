@@ -48,9 +48,13 @@ export const metadata: Metadata = {
     description: "Creative developer crafting exceptional digital experiences with cutting-edge web technologies.",
     images: ["/images/ian-portrait.jpg"],
   },
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#3b82f6",
     generator: 'v0.dev'
+}
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#3b82f6",
 }
 
 export default function RootLayout({
