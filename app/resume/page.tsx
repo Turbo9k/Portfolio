@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Download, Mail, MapPin, Github, ExternalLink, Award, Code } from "lucide-react"
+import { ArrowLeft, Download, Mail, MapPin, Github, ExternalLink, Award, Code, Share2 } from "lucide-react"
 import Link from "next/link"
 
 export default function ResumePage() {
@@ -18,12 +18,45 @@ export default function ResumePage() {
     document.body.removeChild(link)
   }
 
+  const handleShare = async () => {
+    const url = window.location.href
+    const title = "Ian Siats - Professional Resume"
+
+    // Try Web Share API first (mobile/desktop with native share)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: "Check out Ian Siats' professional resume",
+          url: url,
+        })
+        return
+      } catch (err) {
+        // User cancelled or error occurred
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err)
+        }
+      }
+    }
+
+    // Fallback: Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(url)
+      // You could add a toast notification here
+      alert('Resume link copied to clipboard!')
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      // Ultimate fallback: open in new window with mailto or just show the URL
+      prompt('Copy this link to share:', url)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-md print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full">
-          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap flex-1">
             <Button variant="ghost" size="sm" asChild className="text-xs sm:text-sm">
               <Link href="/">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -32,8 +65,28 @@ export default function ResumePage() {
               </Link>
             </Button>
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Professional Resume
+              Ian Siats
             </h1>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button
+              onClick={handleDownload}
+              size="sm"
+              variant="outline"
+              className="border-white/20 hover:bg-white/10 text-white text-xs sm:text-sm"
+            >
+              <Download className="w-4 h-4 mr-1.5 sm:mr-2" />
+              <span className="hidden sm:inline">Download</span>
+            </Button>
+            <Button
+              onClick={handleShare}
+              size="sm"
+              variant="outline"
+              className="border-white/20 hover:bg-white/10 text-white text-xs sm:text-sm"
+            >
+              <Share2 className="w-4 h-4 mr-1.5 sm:mr-2" />
+              <span className="hidden sm:inline">Share</span>
+            </Button>
           </div>
         </div>
       </div>
