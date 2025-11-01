@@ -218,15 +218,6 @@ export default function Portfolio() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <motion.div
-              className="text-blue-400 text-lg mb-4 flex items-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <MapPin className="w-5 h-5" />
-              Colorado, USA
-            </motion.div>
             <motion.h1
               className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
@@ -280,12 +271,12 @@ export default function Portfolio() {
                 <Mail className="w-5 h-5 mr-2" />
                 Get In Touch
               </Button>
-            <Button
+              <Button
                 variant="outline"
                 size="lg"
                 className="border-white/20 hover:bg-white/10"
                 onClick={() => {
-                  document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
+                  document.getElementById("projects-section")?.scrollIntoView({ behavior: "smooth" })
                 }}
               >
                 View Projects

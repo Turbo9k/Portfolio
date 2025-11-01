@@ -6,8 +6,8 @@
       "description": "Real-time data visualization with animated charts, interactive elements, and drag-and-drop functionality. Features live notifications and responsive design.",
       "image": "⚡",
       "tech": ["JavaScript", "D3.js", "CSS3", "HTML5"],
-      "liveUrl": "/dashboard",
-      "githubUrl": "#",
+      "liveUrl": "https://dynamic-dashboard-five.vercel.app",
+      "githubUrl": "https://github.com/Turbo9k/dynamic-dashboard",
       "featured": true,
       "color": "from-blue-500 to-purple-600",
       "status": "Live"
@@ -34,18 +34,6 @@
       "githubUrl": "https://github.com/Turbo9k/Calculator",
       "featured": true,
       "color": "from-orange-500 to-red-600",
-      "status": "Live"
-    },
-    {
-      "id": "parallax-experience",
-      "title": "Parallax Experience",
-      "description": "Immersive scrolling experience with parallax effects, mouse tracking, floating particles, and interactive mini-games.",
-      "image": "🌟",
-      "tech": ["HTML5", "CSS3", "JavaScript", "Canvas API"],
-      "liveUrl": "/parallax",
-      "githubUrl": "#",
-      "featured": false,
-      "color": "from-green-500 to-teal-600",
       "status": "Live"
     },
     {
