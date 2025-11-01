@@ -160,7 +160,7 @@ export default function ResumePage() {
               <div className="border-l-2 border-blue-500/30 pl-3 sm:pl-4 print:border-blue-600">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
                   <h4 className="font-semibold text-white print:text-black text-base sm:text-lg break-words">
-                    Full-Stack E-Commerce Platform (2024) — <span className="text-blue-400 print:text-blue-600">Live Demo</span> | <span className="text-blue-400 print:text-blue-600">GitHub</span>
+                    Full-Stack E-Commerce Platform — <span className="text-blue-400 print:text-blue-600">Live Demo</span> | <span className="text-blue-400 print:text-blue-600">GitHub</span>
                   </h4>
                 </div>
                 <div className="mb-3 space-y-1">
@@ -203,7 +203,7 @@ export default function ResumePage() {
               <div className="border-l-2 border-green-500/30 pl-3 sm:pl-4 print:border-green-600">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
                   <h4 className="font-semibold text-white print:text-black text-base sm:text-lg break-words">
-                    Task Management App (2024) — <span className="text-green-400 print:text-green-600">Live Demo</span> | <span className="text-green-400 print:text-green-600">GitHub</span>
+                    Task Management App — <span className="text-green-400 print:text-green-600">Live Demo</span> | <span className="text-green-400 print:text-green-600">GitHub</span>
                   </h4>
                 </div>
                 <div className="mb-3 space-y-1">
@@ -246,7 +246,7 @@ export default function ResumePage() {
               <div className="border-l-2 border-purple-500/30 pl-3 sm:pl-4 print:border-purple-600">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
                   <h4 className="font-semibold text-white print:text-black text-base sm:text-lg break-words">
-                    Enterprise Admin Dashboard (2024) — <span className="text-purple-400 print:text-purple-600">Live Demo</span> | <span className="text-purple-400 print:text-purple-600">GitHub</span>
+                    Enterprise Admin Dashboard — <span className="text-purple-400 print:text-purple-600">Live Demo</span> | <span className="text-purple-400 print:text-purple-600">GitHub</span>
                   </h4>
                 </div>
                 <div className="mb-3 space-y-1">
@@ -289,7 +289,7 @@ export default function ResumePage() {
               <div className="border-l-2 border-yellow-500/30 pl-3 sm:pl-4 print:border-yellow-600">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
                   <h4 className="font-semibold text-white print:text-black text-base sm:text-lg break-words">
-                    Advanced Calculator Application (2024) — <span className="text-yellow-400 print:text-yellow-600">GitHub</span>
+                    Advanced Calculator Application — <span className="text-yellow-400 print:text-yellow-600">GitHub</span>
                   </h4>
                 </div>
                 <div className="mb-3 space-y-1">
