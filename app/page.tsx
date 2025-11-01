@@ -191,7 +191,7 @@ export default function Portfolio() {
             <Link href="#about" className="hover:text-blue-400 transition-colors" prefetch={false}>
               About
             </Link>
-            <Link prefetch={false} href="#projects" className="hover:text-blue-400 transition-colors">
+            <Link prefetch={false} href="/projects" className="hover:text-blue-400 transition-colors">
               Projects
             </Link>
             <Link 
