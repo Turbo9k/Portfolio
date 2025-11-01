@@ -194,7 +194,18 @@ export default function Portfolio() {
             <Link prefetch={false} href="#projects" className="hover:text-blue-400 transition-colors">
               Projects
             </Link>
-            <Link prefetch={false} href="#contact" className="hover:text-blue-400 transition-colors">
+            <Link 
+              prefetch={false} 
+              href="#contact" 
+              className="hover:text-blue-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                setContactVisible(true)
+                setTimeout(() => {
+                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+                }, 100)
+              }}
+            >
               Contact
             </Link>
             <Button variant="outline" size="sm" className="bg-white/10 border-white/20 hover:bg-white/20" asChild>
@@ -265,7 +276,10 @@ export default function Portfolio() {
                 size="lg"
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                 onClick={() => {
-                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+                  setContactVisible(true)
+                  setTimeout(() => {
+                    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+                  }, 100)
                 }}
               >
                 <Mail className="w-5 h-5 mr-2" />
