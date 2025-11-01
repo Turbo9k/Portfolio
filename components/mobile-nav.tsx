@@ -33,7 +33,7 @@ export function MobileNav() {
             transition={{ duration: 0.2 }}
             className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-md border-b border-white/10 md:hidden"
           >
-            <div className="px-6 py-4 space-y-4">
+            <div className="px-4 sm:px-6 py-4 space-y-4 w-full overflow-x-hidden">
               {menuItems.map((item) => (
                 <motion.div
                   key={item.href}

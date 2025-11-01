@@ -89,8 +89,8 @@ export function ContactForm() {
   }
 
   return (
-    <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-      <CardContent className="p-8">
+    <Card className="bg-white/5 border-white/10 backdrop-blur-sm w-full">
+      <CardContent className="p-4 sm:p-6 md:p-8">
         <form id="contact-form" action={handleSubmit} className="space-y-6" noValidate>
           {/* Honeypot field */}
           <div className="hidden" aria-hidden>

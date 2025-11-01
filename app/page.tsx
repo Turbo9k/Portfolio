@@ -149,7 +149,7 @@ export default function Portfolio() {
   const featuredProjects = projects.filter((project) => project.featured).slice(0, 4)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden w-full">
       {/* Animated Background */}
       {!reducedMotion && !isMobile && (
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -176,7 +176,7 @@ export default function Portfolio() {
         animate={{ y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center w-full">
           <motion.div className="relative" whileHover={{ scale: 1.05 }}>
             <Link href="/" className="block">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25">
@@ -222,15 +222,15 @@ export default function Portfolio() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative pt-20">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+      <section className="min-h-screen flex items-center justify-center relative pt-20 w-full overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <motion.h1
-              className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6"
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 break-words"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -241,7 +241,7 @@ export default function Portfolio() {
               </span>
             </motion.h1>
             <motion.p
-              className="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed"
+              className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 leading-relaxed break-words"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -250,7 +250,7 @@ export default function Portfolio() {
               transform ideas into interactive, performant applications that users love.
             </motion.p>
             <motion.p
-              className="text-base sm:text-lg text-gray-300 mb-8 leading-relaxed"
+              className="text-sm sm:text-base md:text-lg text-gray-300 mb-8 leading-relaxed break-words"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45 }}
@@ -267,14 +267,14 @@ export default function Portfolio() {
               Open to relocation and remote opportunities worldwide.
             </motion.p>
             <motion.div
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
             <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 w-full sm:w-auto"
                 onClick={() => {
                   setContactVisible(true)
                   setTimeout(() => {
@@ -288,7 +288,7 @@ export default function Portfolio() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/20 hover:bg-white/10"
+                className="border-white/20 hover:bg-white/10 w-full sm:w-auto"
                 onClick={() => {
                   document.getElementById("projects-section")?.scrollIntoView({ behavior: "smooth" })
                 }}
@@ -305,7 +305,7 @@ export default function Portfolio() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <div className="relative w-80 h-80 mx-auto">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto">
               {/* Animated background glow */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-2xl opacity-30"
@@ -368,7 +368,7 @@ export default function Portfolio() {
 
       {/* Projects Section */}
       <section id="projects-section" className="py-20 relative" aria-label="Featured Projects">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -388,7 +388,7 @@ export default function Portfolio() {
           </motion.div>
 
           {projectsVisible && (
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 w-full">
             {featuredProjects.map((project, index) => (
               <motion.div
                 key={project.id}
@@ -402,7 +402,7 @@ export default function Portfolio() {
                 <Card className="bg-white/5 border-white/10 backdrop-blur-sm overflow-hidden h-full">
                   <CardContent className="p-0">
                     <div
-                      className={`h-48 bg-gradient-to-br ${project.color} flex items-center justify-center text-6xl relative overflow-hidden`}
+                      className={`h-40 sm:h-48 bg-gradient-to-br ${project.color} flex items-center justify-center text-4xl sm:text-6xl relative overflow-hidden`}
                     >
                       <span className="relative z-10" role="img" aria-label={project.title}>
                         {project.image}
@@ -414,12 +414,12 @@ export default function Portfolio() {
                       )}
 
                       {/* Hover overlay that covers the entire image */}
-                      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4 z-30">
+                      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 z-30 p-4">
                         <Button
                           size="sm"
                           variant="secondary"
                           asChild
-                          className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100"
+                          className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100 w-full sm:w-auto"
                         >
                           <Link href={project.liveUrl}>
                             <ExternalLink className="w-4 h-4 mr-2" />
@@ -431,7 +431,7 @@ export default function Portfolio() {
                             size="sm"
                             variant="outline"
                             asChild
-                            className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-200 border-white/30 hover:bg-white/20"
+                            className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-200 border-white/30 hover:bg-white/20 w-full sm:w-auto"
                           >
                             <Link href={project.githubUrl}>
                               <Github className="w-4 h-4 mr-2" />
@@ -441,9 +441,9 @@ export default function Portfolio() {
                         )}
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
-                      <p className="text-gray-300 mb-4 leading-relaxed">{project.description}</p>
+                    <div className="p-4 sm:p-6">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-3 break-words">{project.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-300 mb-4 leading-relaxed break-words">{project.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.tech.map((tech: string) => (
                           <Badge key={tech} variant="secondary" className="bg-white/10 text-blue-400 border-blue-500/30">
@@ -478,7 +478,7 @@ export default function Portfolio() {
             viewport={{ once: true }}
             className="text-center mt-12"
           >
-            <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10 w-full sm:w-auto" asChild>
               <Link prefetch={false} href="/projects">
                 View All Projects
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -491,7 +491,7 @@ export default function Portfolio() {
       {/* Contact Section - Gated */}
       {contactVisible && (
         <section id="contact" className="py-20 relative">
-          <div className="max-w-4xl mx-auto px-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -516,9 +516,9 @@ export default function Portfolio() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <div className="grid md:grid-cols-2 gap-8">
-                <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-                  <CardContent className="p-8">
+              <div className="grid md:grid-cols-2 gap-6 sm:gap-8 w-full">
+                <Card className="bg-white/5 border-white/10 backdrop-blur-sm w-full">
+                  <CardContent className="p-4 sm:p-6 md:p-8">
                     <h3 className="text-xl font-bold mb-6 text-white">Get in Touch</h3>
                     <div className="space-y-6">
                       <div className="flex items-center gap-4">
@@ -573,7 +573,7 @@ export default function Portfolio() {
 
       {/* Footer */}
       <footer className="py-8 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-center md:text-left">
               © 2024 Ian Siats. Crafted with passion in Colorado.
