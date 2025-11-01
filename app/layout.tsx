@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://iansiats.vercel.app",
-    siteName: "Ian Siats Portfolio",
+    siteName: "Ian Siats - Web Developer Portfolio",
     images: [
       {
         url: "/images/ian-portrait.jpg",

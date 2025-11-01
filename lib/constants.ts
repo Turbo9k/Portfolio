@@ -1,6 +1,6 @@
 // Application constants
 export const APP_CONFIG = {
-  name: "Ian Siats Portfolio",
+  name: "Ian Siats - Web Developer Portfolio",
   description: "Creative developer crafting exceptional digital experiences with cutting-edge web technologies.",
   url: process.env.NODE_ENV === "production" ? "https://iansiats.dev" : "http://localhost:3000",
   author: {
