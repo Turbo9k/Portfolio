@@ -17,7 +17,9 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "class-variance-authority": "^0.7.0",
-    "@radix-ui/react-slot": "^1.1.0"
+    "@radix-ui/react-slot": "^1.1.0",
+    "resend": "^4.0.0",
+    "@next/third-parties": "^15.5.4"
   },
   "devDependencies": {
     "@types/node": "^20.16.11",
