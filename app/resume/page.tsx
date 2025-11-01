@@ -35,14 +35,6 @@ export default function ResumePage() {
               Professional Resume
             </h1>
           </div>
-          <Button
-            onClick={handleDownload}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-xs sm:text-sm w-full sm:w-auto"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Download PDF</span>
-            <span className="sm:hidden">Download</span>
-          </Button>
         </div>
       </div>
 
@@ -55,25 +47,70 @@ export default function ResumePage() {
         >
           {/* PDF Viewer */}
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm w-full overflow-hidden">
-            <CardContent className="p-0">
-              <div className="w-full relative" style={{ minHeight: '800px' }}>
-                <iframe
-                  src="/Ian_Siats_Resume.pdf#view=FitH"
-                  className="w-full h-full min-h-[800px] md:min-h-[1000px] border-0"
-                  title="Ian Siats Resume PDF"
-                  style={{ minHeight: '800px' }}
-                />
-                {/* Fallback for browsers that don't support PDF embedding */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-                  <a
-                    href="/Ian_Siats_Resume.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pointer-events-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                  <Button
+                    onClick={handleDownload}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-sm sm:text-base w-full sm:w-auto"
                   >
-                    Open PDF in New Tab
-                  </a>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download PDF
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-white/20 hover:bg-white/10 text-white text-sm sm:text-base w-full sm:w-auto"
+                  >
+                    <a
+                      href="/Ian_Siats_Resume.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Open in New Tab
+                    </a>
+                  </Button>
                 </div>
+              </div>
+              <div className="w-full relative border border-white/10 rounded-lg overflow-hidden bg-white" style={{ minHeight: '800px' }}>
+                <object
+                  data="/Ian_Siats_Resume.pdf#view=FitH"
+                  type="application/pdf"
+                  className="w-full h-full min-h-[800px] md:min-h-[1000px]"
+                  style={{ minHeight: '800px' }}
+                  aria-label="Ian Siats Resume PDF"
+                >
+                  {/* Fallback content if PDF doesn't load */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-8 text-center">
+                    <p className="text-gray-700 mb-4 text-lg font-medium">
+                      Unable to display PDF in browser
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button
+                        onClick={handleDownload}
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </Button>
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="border-gray-300 hover:bg-gray-100"
+                      >
+                        <a
+                          href="/Ian_Siats_Resume.pdf"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open in New Tab
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </object>
               </div>
             </CardContent>
           </Card>
