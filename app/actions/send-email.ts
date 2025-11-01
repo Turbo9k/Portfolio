@@ -40,7 +40,7 @@ export async function sendEmail(formData: FormData): Promise<ContactFormResponse
         const { error } = await resend.emails.send({
           from: "Portfolio <onboarding@resend.dev>",
           to: "iansiats9@gmail.com",
-          reply_to: data.email,
+          replyTo: data.email,
           subject: `Portfolio Contact: ${data.name}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

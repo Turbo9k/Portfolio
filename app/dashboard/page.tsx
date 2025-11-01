@@ -54,7 +54,7 @@ export default function DashboardPage() {
         pageViews: Math.floor(Math.random() * 50000) + 25000,
         bounceRate: Math.floor(Math.random() * 30) + 25, // 25-55%
         avgSession: Math.floor(Math.random() * 180) + 120, // 2-5 minutes in seconds
-        conversion: (Math.random() * 5 + 2).toFixed(2), // 2-7%
+        conversion: Number((Math.random() * 5 + 2).toFixed(2)), // 2-7%
       })
       setIsRefreshing(false)
     }, 1000)
