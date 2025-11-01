@@ -9,7 +9,7 @@ import { ArrowRight, Github, ExternalLink, Mail, MapPin, Download, Code, Palette
 import Link from "next/link"
 import Image from "next/image"
 import dynamic from "next/dynamic"
-const AboutSection = dynamic(() => import("../components/home/AboutSection"), { ssr: false })
+const AboutSection = dynamic(() => import("@/components/home/AboutSection"), { ssr: false })
 const MobileNav = dynamic(() => import("@/components/mobile-nav").then(m => m.MobileNav), { ssr: false })
 const ContactForm = dynamic(() => import("@/components/contact-form").then(m => m.ContactForm), { ssr: false })
 
