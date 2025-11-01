@@ -306,50 +306,50 @@ export default function ResumePage() {
             <CardHeader>
               <CardTitle className="text-white print:text-black flex items-center gap-2">
                 <Award className="w-5 h-5 text-blue-400 print:text-blue-600" />
-                Why I'm Ready to Learn & Contribute
+                Core Competencies
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-white print:text-black mb-3 text-sm uppercase tracking-wide">Demonstrated Learning Ability</h4>
+                  <h4 className="font-semibold text-white print:text-black mb-3 text-sm uppercase tracking-wide">Technical Capabilities</h4>
                   <ul className="text-gray-300 print:text-gray-700 space-y-2.5">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-400 print:text-blue-600 mt-1">▸</span>
-                      <span>Proven track record of quickly mastering new technologies through self-study</span>
+                      <span>Rapid adoption of new technologies and frameworks through independent learning</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-400 print:text-blue-600 mt-1">▸</span>
-                      <span>Strong problem-solving skills developed through building complex projects independently</span>
+                      <span>Strong analytical and problem-solving skills demonstrated through complex project development</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-400 print:text-blue-600 mt-1">▸</span>
-                      <span>Commitment to following best practices and writing clean, maintainable code</span>
+                      <span>Adherence to industry best practices with focus on clean, maintainable code architecture</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-400 print:text-blue-600 mt-1">▸</span>
-                      <span>Eager to receive feedback and continuously improve through mentorship</span>
+                      <span>Continuous improvement mindset with openness to feedback and collaborative learning</span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white print:text-black mb-3 text-sm uppercase tracking-wide">Professional Readiness</h4>
+                  <h4 className="font-semibold text-white print:text-black mb-3 text-sm uppercase tracking-wide">Professional Attributes</h4>
                   <ul className="text-gray-300 print:text-gray-700 space-y-2.5">
                     <li className="flex items-start gap-2">
                       <span className="text-purple-400 print:text-purple-600 mt-1">▸</span>
-                      <span>Highly motivated and self-disciplined, capable of managing projects independently</span>
+                      <span>Self-directed with proven ability to deliver projects independently and meet deadlines</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-400 print:text-purple-600 mt-1">▸</span>
-                      <span>Exceptional attention to detail and commitment to delivering quality work</span>
+                      <span>Meticulous attention to detail with consistent focus on quality and user experience</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-400 print:text-purple-600 mt-1">▸</span>
-                      <span>Ready to collaborate with team members and contribute to shared codebases</span>
+                      <span>Effective collaboration skills with experience contributing to shared codebases and team projects</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-400 print:text-purple-600 mt-1">▸</span>
-                      <span>Adaptable and excited to learn company-specific tools and workflows</span>
+                      <span>Adaptable professional capable of quickly integrating into new environments and workflows</span>
                     </li>
                   </ul>
                 </div>
