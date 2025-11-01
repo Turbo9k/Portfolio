@@ -9,8 +9,13 @@ import Link from "next/link"
 
 export default function ResumePage() {
   const handleDownload = () => {
-    // Create a print-friendly version
-    window.print()
+    // Download the PDF file
+    const link = document.createElement('a')
+    link.href = '/Ian_Siats_Resume.pdf'
+    link.download = 'Ian_Siats_Resume.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -41,15 +46,40 @@ export default function ResumePage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full overflow-x-hidden">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full overflow-x-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="space-y-6 sm:space-y-8"
         >
-          {/* Header Section */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm print:bg-white print:text-black print:border-gray-300 w-full">
+          {/* PDF Viewer */}
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm w-full overflow-hidden">
+            <CardContent className="p-0">
+              <div className="w-full relative" style={{ minHeight: '800px' }}>
+                <iframe
+                  src="/Ian_Siats_Resume.pdf#view=FitH"
+                  className="w-full h-full min-h-[800px] md:min-h-[1000px] border-0"
+                  title="Ian Siats Resume PDF"
+                  style={{ minHeight: '800px' }}
+                />
+                {/* Fallback for browsers that don't support PDF embedding */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+                  <a
+                    href="/Ian_Siats_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+                  >
+                    Open PDF in New Tab
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Header Section - Hidden now, keeping for fallback */}
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm print:bg-white print:text-black print:border-gray-300 w-full hidden">
             <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="text-center mb-4 sm:mb-6">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-white print:text-black">Ian Siats</h1>
