@@ -24,7 +24,30 @@ To enable the CMS to work on Vercel, you need to set up Upstash Redis through th
      - `UPSTASH_REDIS_REST_TOKEN`
    - These will be automatically available in your Vercel project
 
-4. **Redeploy your project:**
+4. **Initialize Redis with default data (optional but recommended):**
+   
+   **Option A: Using the API endpoint (Easiest)**
+   - After redeploying, visit: `https://your-site.vercel.app/api/init-redis`
+   - Or use curl:
+     ```bash
+     curl -X POST https://your-site.vercel.app/api/init-redis
+     ```
+   - This will populate Redis with data from `data/content.json` and `data/projects.json`
+   
+   **Option B: Using the local script**
+   - Get your environment variables from Vercel (Settings → Environment Variables)
+   - Run locally with the environment variables:
+     ```bash
+     # Set environment variables (Windows PowerShell)
+     $env:UPSTASH_REDIS_REST_URL="your-url-here"
+     $env:UPSTASH_REDIS_REST_TOKEN="your-token-here"
+     
+     # Run the initialization script
+     npm run init-redis
+     ```
+   - Or create a `.env.local` file with the variables and run `npm run init-redis`
+
+5. **Redeploy your project:**
    - After setting up Upstash Redis, redeploy your project
    - The CMS will now use Redis for storage instead of the read-only file system
 

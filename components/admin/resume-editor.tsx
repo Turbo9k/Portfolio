@@ -230,3 +230,4 @@ export function ResumeEditor({ content, onSave, onCancel }: ResumeEditorProps) {
   )
 }
 
+
