@@ -138,13 +138,18 @@ export default function AdminDashboard() {
         body: JSON.stringify({ content: updatedContent }),
       })
 
-      if (!response.ok) throw new Error("Failed to save content")
-      showMessage("success", "Content saved successfully!")
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save content")
+      }
+      
+      showMessage("success", data.message || "Content saved successfully!")
       setContent(updatedContent)
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save content:", error)
-      showMessage("error", "Failed to save content")
+      showMessage("error", error.message || "Failed to save content")
       return false
     }
   }
@@ -157,12 +162,17 @@ export default function AdminDashboard() {
         body: JSON.stringify({ projects: updatedProjects }),
       })
 
-      if (!response.ok) throw new Error("Failed to save projects")
-      showMessage("success", "Projects saved successfully!")
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save projects")
+      }
+      
+      showMessage("success", data.message || "Projects saved successfully!")
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save projects:", error)
-      showMessage("error", "Failed to save projects")
+      showMessage("error", error.message || "Failed to save projects")
       return false
     }
   }

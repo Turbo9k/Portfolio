@@ -123,7 +123,19 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2))
+    try {
+      await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2), "utf8")
+    } catch (writeError: any) {
+      console.error("Error writing content file:", writeError)
+      // Check if it's a filesystem permission issue (common on Vercel)
+      if (writeError.code === "EACCES" || writeError.code === "EROFS" || process.env.VERCEL) {
+        return NextResponse.json({
+          success: false,
+          error: "File system is read-only. On Vercel, you need to use a database or external storage for dynamic content.",
+        }, { status: 500 })
+      }
+      throw writeError
+    }
 
     const response: ApiResponse = {
       success: true,
@@ -131,12 +143,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(response)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving content:", error)
 
     const response: ApiResponse = {
       success: false,
-      error: "Failed to save content",
+      error: error.message || "Failed to save content",
     }
 
     return NextResponse.json(response, { status: 500 })
