@@ -57,12 +57,33 @@ export interface AdminCredentials {
 }
 
 export async function getAdminCredentials(): Promise<AdminCredentials | null> {
-  if (!redis) return null
+  if (!redis) {
+    console.error("Redis not available for getAdminCredentials")
+    return null
+  }
   
   try {
-    const credentials = await redis.get<AdminCredentials>(ADMIN_CREDENTIALS_KEY)
-    return credentials
-  } catch {
+    const credentials = await redis.get<AdminCredentials & { updatedAt?: string }>(ADMIN_CREDENTIALS_KEY)
+    if (!credentials) {
+      console.error("No credentials found in Redis")
+      return null
+    }
+    
+    // Ensure we have the required fields
+    if (!credentials.email || !credentials.passwordHash) {
+      console.error("Credentials missing required fields:", {
+        hasEmail: !!credentials.email,
+        hasPasswordHash: !!credentials.passwordHash,
+      })
+      return null
+    }
+    
+    return {
+      email: credentials.email,
+      passwordHash: credentials.passwordHash,
+    }
+  } catch (error: any) {
+    console.error("Error getting admin credentials:", error)
     return null
   }
 }

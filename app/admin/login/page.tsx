@@ -66,18 +66,19 @@ export default function AdminLogin() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Email / Username</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
-                      type="text"
+                      type="email"
                       value={credentials.username}
                       onChange={(e) => setCredentials((prev) => ({ ...prev, username: e.target.value }))}
                       className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      placeholder="Enter username"
+                      placeholder="admin@portfolio.com"
                       required
                     />
                   </div>
+                  <p className="mt-1 text-xs text-gray-400">Default: admin@portfolio.com</p>
                 </div>
 
                 <div>

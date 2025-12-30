@@ -87,15 +87,27 @@ export async function POST(request: NextRequest) {
     // Get admin credentials from Redis
     const credentials = await getAdminCredentials()
     if (!credentials) {
+      console.error("Login failed: No credentials found in Redis")
       recordFailedAttempt(ip)
       return NextResponse.json(
-        { success: false, error: "Admin credentials not configured" },
+        { success: false, error: "Admin credentials not configured. Please run /api/auth/init-admin first." },
         { status: 500 }
       )
     }
     
+    // Debug logging (remove in production)
+    console.log("Login attempt:", {
+      providedEmail: email,
+      storedEmail: credentials.email,
+      hasPasswordHash: !!credentials.passwordHash,
+    })
+    
     // Verify email
     if (email.toLowerCase() !== credentials.email.toLowerCase()) {
+      console.error("Login failed: Email mismatch", {
+        provided: email.toLowerCase(),
+        stored: credentials.email.toLowerCase(),
+      })
       recordFailedAttempt(ip)
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
@@ -104,8 +116,18 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify password
+    if (!credentials.passwordHash) {
+      console.error("Login failed: No password hash stored")
+      recordFailedAttempt(ip)
+      return NextResponse.json(
+        { success: false, error: "Admin credentials not properly configured" },
+        { status: 500 }
+      )
+    }
+    
     const isValid = await verifyPassword(password, credentials.passwordHash)
     if (!isValid) {
+      console.error("Login failed: Password mismatch")
       recordFailedAttempt(ip)
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
