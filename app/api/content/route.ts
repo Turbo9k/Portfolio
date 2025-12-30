@@ -4,6 +4,16 @@ import path from "path"
 import type { ApiResponse } from "@/lib/types"
 
 const contentFilePath = path.join(process.cwd(), "data", "content.json")
+const KV_CONTENT_KEY = "portfolio:content"
+
+// Try to import KV, but it's optional
+let kv: any = null
+try {
+  const kvModule = require("@vercel/kv")
+  kv = kvModule.kv
+} catch {
+  // KV not available, will use file system
+}
 
 // Ensure data directory exists
 async function ensureDataDirectory() {
@@ -74,16 +84,39 @@ const defaultContent = {
 
 export async function GET() {
   try {
-    await ensureDataDirectory()
+    let content: typeof defaultContent = defaultContent
 
-    let content: typeof defaultContent
-    try {
-      const fileContents = await fs.readFile(contentFilePath, "utf8")
-      content = JSON.parse(fileContents)
-    } catch {
-      // File doesn't exist, use default content
-      content = defaultContent
-      await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2))
+    // Try Vercel KV first (for production)
+    if (kv) {
+      try {
+        const kvData = await kv.get<typeof defaultContent>(KV_CONTENT_KEY)
+        if (kvData && typeof kvData === "object") {
+          content = kvData
+        }
+      } catch (kvError) {
+      // KV not available, try file system (for local development)
+      console.log("KV not available, trying file system...")
+      try {
+        await ensureDataDirectory()
+        const fileContents = await fs.readFile(contentFilePath, "utf8")
+        content = JSON.parse(fileContents)
+      } catch (fileError) {
+        // File doesn't exist, use default content
+        console.log("File doesn't exist, using defaults")
+        content = defaultContent
+      }
+      }
+    } else {
+      // KV not available, try file system (for local development)
+      try {
+        await ensureDataDirectory()
+        const fileContents = await fs.readFile(contentFilePath, "utf8")
+        content = JSON.parse(fileContents)
+      } catch (fileError) {
+        // File doesn't exist, use default content
+        console.log("File doesn't exist, using defaults")
+        content = defaultContent
+      }
     }
 
     const response: ApiResponse<typeof content> = {
@@ -97,7 +130,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error("Error reading content file:", error)
+    console.error("Error reading content:", error)
 
     const response: ApiResponse = {
       success: false,
@@ -110,8 +143,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await ensureDataDirectory()
-
     const body = await request.json()
     const { content } = body
 
@@ -123,18 +154,52 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    try {
-      await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2), "utf8")
-    } catch (writeError: any) {
-      console.error("Error writing content file:", writeError)
-      // Check if it's a filesystem permission issue (common on Vercel)
-      if (writeError.code === "EACCES" || writeError.code === "EROFS" || process.env.VERCEL) {
-        return NextResponse.json({
-          success: false,
-          error: "File system is read-only. On Vercel, you need to use a database or external storage for dynamic content.",
-        }, { status: 500 })
+    // Try Vercel KV first (for production)
+    if (kv) {
+      try {
+        await kv.set(KV_CONTENT_KEY, content)
+        // Also try to sync to file system for backup (if possible)
+        try {
+          await ensureDataDirectory()
+          await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2), "utf8")
+        } catch (fileError) {
+          // File write failed, but KV succeeded, so that's okay
+          console.log("File write failed, but KV save succeeded")
+        }
+      } catch (kvError) {
+      // KV not available, try file system (for local development)
+      console.log("KV not available, trying file system...")
+      try {
+        await ensureDataDirectory()
+        await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2), "utf8")
+      } catch (writeError: any) {
+        console.error("Error writing content:", writeError)
+        // Check if it's a filesystem permission issue
+        if (writeError.code === "EACCES" || writeError.code === "EROFS") {
+          return NextResponse.json({
+            success: false,
+            error: "File system is read-only. Please set up Vercel KV for production use.",
+          }, { status: 500 })
+        }
+        throw writeError
       }
-      throw writeError
+      }
+    } else {
+      // KV not available, try file system (for local development)
+      try {
+        await ensureDataDirectory()
+        await fs.writeFile(contentFilePath, JSON.stringify(content, null, 2), "utf8")
+      } catch (writeError: any) {
+        console.error("Error writing content:", writeError)
+        // Check if it's a filesystem permission issue
+        if (writeError.code === "EACCES" || writeError.code === "EROFS") {
+          return NextResponse.json({
+            success: false,
+            error: "File system is read-only. Please set up Vercel KV for production use.",
+          }, { status: 500 })
+        }
+        throw writeError
+      }
     }
 
     const response: ApiResponse = {
