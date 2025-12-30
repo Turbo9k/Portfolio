@@ -21,8 +21,12 @@ const KV_CONTENT_KEY = "portfolio:content"
 const KV_PROJECTS_KEY = "portfolio:projects"
 
 async function initializeRedis() {
+  // Support both naming conventions (Vercel uses KV_REST_API_URL/TOKEN)
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
+  
   // Check for environment variables
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  if (!redisUrl || !redisToken) {
     return {
       success: false,
       error: "Upstash Redis is not configured. Please set up Upstash Redis through Vercel Marketplace first.",
@@ -31,8 +35,8 @@ async function initializeRedis() {
   }
 
   const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    url: redisUrl,
+    token: redisToken,
   })
 
   // Check if data already exists

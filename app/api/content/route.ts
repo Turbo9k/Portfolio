@@ -10,10 +10,13 @@ const KV_CONTENT_KEY = "portfolio:content"
 let redis: any = null
 try {
   const { Redis } = require("@upstash/redis")
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  // Support both naming conventions (Vercel uses KV_REST_API_URL/TOKEN)
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
+  if (redisUrl && redisToken) {
     redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      url: redisUrl,
+      token: redisToken,
     })
   }
 } catch {

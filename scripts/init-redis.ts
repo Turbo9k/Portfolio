@@ -17,20 +17,24 @@ const KV_CONTENT_KEY = "portfolio:content"
 const KV_PROJECTS_KEY = "portfolio:projects"
 
 async function initRedis() {
+  // Support both naming conventions (Vercel uses KV_REST_API_URL/TOKEN)
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
+  
   // Check for environment variables
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  if (!redisUrl || !redisToken) {
     console.error("❌ Error: Missing Upstash Redis environment variables")
     console.log("\nPlease set the following environment variables:")
-    console.log("  - UPSTASH_REDIS_REST_URL")
-    console.log("  - UPSTASH_REDIS_REST_TOKEN")
+    console.log("  - UPSTASH_REDIS_REST_URL or KV_REST_API_URL")
+    console.log("  - UPSTASH_REDIS_REST_TOKEN or KV_REST_API_TOKEN")
     console.log("\nYou can find these in your Vercel project settings after setting up Upstash Redis.")
     process.exit(1)
   }
 
   try {
     const redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      url: redisUrl,
+      token: redisToken,
     })
 
     console.log("🔄 Connecting to Upstash Redis...")
