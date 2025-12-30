@@ -1,80 +1,51 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, ExternalLink, Github, Star } from "lucide-react"
+import { ArrowLeft, ExternalLink, Github, Star, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
+interface Project {
+  id: string
+  title: string
+  description: string
+  image: string
+  tech: string[]
+  liveUrl: string
+  githubUrl: string
+  featured: boolean
+  color: string
+  status: string
+  role?: string
+  stack?: string
+  summary?: string
+  challenges?: string
+  background?: string
+}
+
 export default function ProjectsPage() {
-  const allProjects = [
-    {
-      id: "dynamic-dashboard",
-      title: "Dynamic Dashboard",
-      description:
-        "Real-time data visualization with animated charts, interactive elements, and drag-and-drop functionality. Features live notifications and responsive design.",
-      image: "⚡",
-      tech: ["JavaScript", "D3.js", "CSS3", "HTML5"],
-      liveUrl: "https://dynamic-dashboard-five.vercel.app",
-      githubUrl: "https://github.com/Turbo9k/dynamic-dashboard",
-      featured: true,
-      color: "from-blue-500 to-purple-600",
-      status: "Live",
-    },
-    {
-      id: "ecommerce-platform",
-      title: "E-Commerce Platform",
-      description:
-        "Modern e-commerce solution with product management, payment integration, and real-time inventory tracking.",
-      image: "🛒",
-      tech: ["React", "Node.js", "PostgreSQL", "Stripe API"],
-      liveUrl: "https://ecommerce-store-mu-five.vercel.app/",
-      githubUrl: "https://github.com/Turbo9k/Ecommerce",
-      featured: true,
-      color: "from-pink-500 to-rose-600",
-      status: "Live",
-    },
-    {
-      id: "advanced-calculator",
-      title: "Advanced Calculator",
-      description:
-        "Sophisticated calculator with scientific functions, history tracking, memory operations, and modern UI design.",
-      image: "🧮",
-      tech: ["JavaScript", "Python", "CSS3", "LocalStorage"],
-      liveUrl: "/calculator",
-      githubUrl: "https://github.com/Turbo9k/Calculator",
-      featured: true,
-      color: "from-orange-500 to-red-600",
-      status: "Live",
-    },
-    {
-      id: "cognivex-admin",
-      title: "Cognivex Admin",
-      description:
-        "Comprehensive admin dashboard with JWT authentication, role management, and real-time monitoring capabilities.",
-      image: "🏢",
-      tech: ["Next.js 14", "TypeScript", "Tailwind CSS", "MongoDB"],
-      liveUrl: "https://cognivex.vercel.app/",
-      githubUrl: "https://github.com/Turbo9k/cognivex",
-      featured: false,
-      color: "from-indigo-500 to-blue-600",
-      status: "Live",
-    },
-    {
-      id: "task-management-app",
-      title: "Task Management App",
-      description:
-        "Collaborative task management with real-time updates, team collaboration, and project tracking features.",
-      image: "📋",
-      tech: ["Vue.js", "Express.js", "Socket.io", "MySQL"],
-      liveUrl: "#",
-      githubUrl: "#",
-      featured: false,
-      color: "from-cyan-500 to-blue-600",
-      status: "Planning",
-    },
-  ]
+  const [allProjects, setAllProjects] = useState<Project[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const response = await fetch("/api/projects", { cache: "no-store" })
+        if (!response.ok) throw new Error("Failed to fetch projects")
+        const data = await response.json()
+        const projects = data.data?.projects || data.projects || []
+        setAllProjects(projects)
+      } catch (error) {
+        console.error("Failed to load projects:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadProjects()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -118,11 +89,22 @@ export default function ProjectsPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <h3 className="text-3xl font-bold mb-8">All Projects</h3>
-          <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {allProjects.map((project, index) => (
-              <ProjectCard key={project.title} project={project} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-400" />
+              <p className="text-gray-400">Loading projects...</p>
+            </div>
+          ) : allProjects.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400">No projects found.</p>
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
+              {allProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
