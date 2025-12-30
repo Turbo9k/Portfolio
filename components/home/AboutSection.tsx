@@ -4,16 +4,29 @@ import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export default function AboutSection({ skillTags }: { skillTags: { frontend: string[]; backend: string[]; database: string[]; other: string[] } }) {
+interface AboutSectionProps {
+  skillTags: { frontend: string[]; backend: string[]; database: string[]; other: string[] }
+  aboutContent?: {
+    title?: string
+    subtitle?: string
+    journeyTitle?: string
+    journeyParagraph1?: string
+    journeyParagraph2?: string
+  }
+}
+
+export default function AboutSection({ skillTags, aboutContent }: AboutSectionProps) {
   return (
     <section id="about" className="py-20 relative" aria-label="About Me">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">About Me</span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              {aboutContent?.title || "About Me"}
+            </span>
           </h2>
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-            Passionate about creating digital experiences that not only function flawlessly but also captivate and inspire users through innovative design and interaction.
+            {aboutContent?.subtitle || "Passionate about creating digital experiences that not only function flawlessly but also captivate and inspire users through innovative design and interaction."}
           </p>
         </motion.div>
 
@@ -63,12 +76,14 @@ export default function AboutSection({ skillTags }: { skillTags: { frontend: str
           <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="space-y-6">
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
               <CardContent className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-white">My Journey</h3>
+                <h3 className="text-2xl font-bold mb-4 text-white">
+                  {aboutContent?.journeyTitle || "My Journey"}
+                </h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  Based in the beautiful state of Colorado, I'm a passionate developer who believes in creating digital experiences that not only function flawlessly but also captivate and inspire.
+                  {aboutContent?.journeyParagraph1 || "Based in the beautiful state of Colorado, I'm a passionate developer who believes in creating digital experiences that not only function flawlessly but also captivate and inspire."}
                 </p>
                 <p className="text-gray-300 leading-relaxed">
-                  My journey in development is driven by curiosity and a love for interactive design. I specialize in crafting websites and applications that respond to user interaction in meaningful ways, creating memorable experiences that leave lasting impressions.
+                  {aboutContent?.journeyParagraph2 || "My journey in development is driven by curiosity and a love for interactive design. I specialize in crafting websites and applications that respond to user interaction in meaningful ways, creating memorable experiences that leave lasting impressions."}
                 </p>
               </CardContent>
             </Card>

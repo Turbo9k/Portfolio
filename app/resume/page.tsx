@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,22 @@ import { ArrowLeft, Download, Mail, MapPin, Github, ExternalLink, Award, Code, S
 import Link from "next/link"
 
 export default function ResumePage() {
+  const [resumeContent, setResumeContent] = useState<any>(null)
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const response = await fetch("/api/content")
+        const data = await response.json()
+        if (data.data || data) {
+          setResumeContent((data.data || data).resume)
+        }
+      } catch (error) {
+        console.error("Failed to load resume content:", error)
+      }
+    }
+    loadContent()
+  }, [])
   const handleDownload = () => {
     // Download the PDF file
     const link = document.createElement('a')
@@ -65,7 +82,7 @@ export default function ResumePage() {
               </Link>
             </Button>
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Ian Siats
+              {resumeContent?.name || "Ian Siats"}
             </h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -102,25 +119,29 @@ export default function ResumePage() {
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm print:bg-white print:text-black print:border-gray-300 w-full">
             <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="text-center mb-4 sm:mb-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 text-white print:text-black">IAN SIATS</h1>
-                <h2 className="text-lg sm:text-xl md:text-2xl text-blue-400 print:text-blue-600 mb-4 sm:mb-6 font-medium">Full-Stack Web Developer</h2>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 text-white print:text-black">
+                  {resumeContent?.name || "IAN SIATS"}
+                </h1>
+                <h2 className="text-lg sm:text-xl md:text-2xl text-blue-400 print:text-blue-600 mb-4 sm:mb-6 font-medium">
+                  {resumeContent?.title || "Full-Stack Web Developer"}
+                </h2>
                 <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-gray-300 print:text-gray-700 text-sm sm:text-base">
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4" />
-                    <span>iansiats9@gmail.com</span>
+                    <span>{resumeContent?.email || "iansiats9@gmail.com"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    <span>Colorado, USA</span>
+                    <span>{resumeContent?.location || "Colorado, USA"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Github className="w-4 h-4" />
-                    <span>github.com/Turbo9k</span>
+                    <span>{resumeContent?.github || "github.com/Turbo9k"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ExternalLink className="w-4 h-4" />
-                    <a href="https://iansiats.vercel.app" target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 hover:text-blue-400">
-                      iansiats.vercel.app
+                    <a href={`https://${resumeContent?.website || "iansiats.vercel.app"}`} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 hover:text-blue-400">
+                      {resumeContent?.website || "iansiats.vercel.app"}
                     </a>
                   </div>
                 </div>
@@ -137,13 +158,7 @@ export default function ResumePage() {
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <p className="text-gray-300 print:text-gray-700 leading-relaxed text-sm sm:text-base">
-                Self-taught Full-Stack Web Developer seeking an entry-level position to launch my professional career.
-                Through intensive self-directed learning, I have developed strong proficiency in modern web
-                development technologies including React, Next.js, TypeScript, and full-stack JavaScript development.
-                My portfolio demonstrates hands-on experience building production-ready applications with complex
-                features such as payment processing, authentication systems, and responsive user interfaces. Highly
-                motivated, detail-oriented, and committed to writing clean, maintainable code that follows industry best
-                practices.
+                {resumeContent?.professionalSummary || "Self-taught Full-Stack Web Developer seeking an entry-level position to launch my professional career. Through intensive self-directed learning, I have developed strong proficiency in modern web development technologies including React, Next.js, TypeScript, and full-stack JavaScript development. My portfolio demonstrates hands-on experience building production-ready applications with complex features such as payment processing, authentication systems, and responsive user interfaces. Highly motivated, detail-oriented, and committed to writing clean, maintainable code that follows industry best practices."}
               </p>
             </CardContent>
           </Card>
@@ -339,19 +354,19 @@ export default function ResumePage() {
                 <div>
                   <h4 className="font-semibold text-white print:text-black mb-2 sm:mb-3 text-sm sm:text-base">Frontend:</h4>
                   <p className="text-gray-300 print:text-gray-700 text-sm sm:text-base">
-                    React • Next.js • TypeScript • JavaScript (ES6) • HTML5 • CSS3 • Tailwind CSS • Responsive Web Design • UI/UX
+                    {resumeContent?.technicalSkills?.frontend || "React • Next.js • TypeScript • JavaScript (ES6) • HTML5 • CSS3 • Tailwind CSS • Responsive Web Design • UI/UX"}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-white print:text-black mb-2 sm:mb-3 text-sm sm:text-base">Backend & Databases:</h4>
                   <p className="text-gray-300 print:text-gray-700 text-sm sm:text-base">
-                    Node.js • Express.js • Python • REST APIs • PostgreSQL • MongoDB • JWT Auth • CRUD • MVC Architecture • API Integration
+                    {resumeContent?.technicalSkills?.backend || "Node.js • Express.js • Python • REST APIs • PostgreSQL • MongoDB • JWT Auth • CRUD • MVC Architecture • API Integration"}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-white print:text-black mb-2 sm:mb-3 text-sm sm:text-base">Tools & Technologies:</h4>
                   <p className="text-gray-300 print:text-gray-700 text-sm sm:text-base">
-                    Git • GitHub • Vercel • Stripe • Docker (basic) • D3.js • CI/CD • Linux • Agile Scrum • Figma • Unit Testing • Postman • VS Code
+                    {resumeContent?.technicalSkills?.tools || "Git • GitHub • Vercel • Stripe • Docker (basic) • D3.js • CI/CD • Linux • Agile Scrum • Figma • Unit Testing • Postman • VS Code"}
                   </p>
                 </div>
               </div>
@@ -369,13 +384,14 @@ export default function ResumePage() {
               <div>
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
                   <h4 className="font-semibold text-white print:text-black text-base sm:text-lg break-words">
-                    Self-Directed Full-Stack Web Development Program
+                    {resumeContent?.education?.title || "Self-Directed Full-Stack Web Development Program"}
                   </h4>
-                  <span className="text-xs sm:text-sm text-gray-400 print:text-gray-600">2022 - Present</span>
+                  <span className="text-xs sm:text-sm text-gray-400 print:text-gray-600">
+                    {resumeContent?.education?.period || "2022 - Present"}
+                  </span>
                 </div>
                 <p className="text-gray-300 print:text-gray-700 text-sm sm:text-base">
-                  Completed coursework in JavaScript ES6, React, Next.js, Node.js, TypeScript, and modern web
-                  development frameworks through online platforms, documentation, and hands-on projects.
+                  {resumeContent?.education?.description || "Completed coursework in JavaScript ES6, React, Next.js, Node.js, TypeScript, and modern web development frameworks through online platforms, documentation, and hands-on projects."}
                 </p>
               </div>
             </CardContent>

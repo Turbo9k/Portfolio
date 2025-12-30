@@ -29,6 +29,8 @@ interface Project {
 export default function Portfolio() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [projects, setProjects] = useState<Project[]>([])
+  const [heroContent, setHeroContent] = useState<any>(null)
+  const [aboutContent, setAboutContent] = useState<any>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [projectsVisible, setProjectsVisible] = useState(false)
@@ -86,11 +88,20 @@ export default function Portfolio() {
     const load = () => {
       ;(async () => {
         try {
-          const response = await fetch("/api/projects")
-          const data = await response.json()
-          setProjects(data.data?.projects || data.projects || [])
+          const [projectsRes, contentRes] = await Promise.all([
+            fetch("/api/projects"),
+            fetch("/api/content")
+          ])
+          const projectsData = await projectsRes.json()
+          const contentData = await contentRes.json()
+          setProjects(projectsData.data?.projects || projectsData.projects || [])
+          if (contentData.data || contentData) {
+            const content = contentData.data || contentData
+            setHeroContent(content.hero)
+            setAboutContent(content.about)
+          }
         } catch (error) {
-          console.error("Failed to load projects:", error)
+          console.error("Failed to load data:", error)
         }
       })()
     }
@@ -138,7 +149,7 @@ export default function Portfolio() {
     return () => observers.forEach(io => io?.disconnect())
   }, [])
 
-  const skillTags = {
+  const skillTags = aboutContent?.skills || {
     frontend: ["React", "Next.js", "CSS/SCSS", "TypeScript"],
     backend: ["Node.js", "Express"],
     database: ["MongoDB"],
@@ -235,9 +246,9 @@ export default function Portfolio() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <span className="text-white">Hi, I'm </span>
+              <span className="text-white">{heroContent?.greeting || "Hi, I'm "} </span>
               <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-teal-400 bg-clip-text text-transparent">
-                Ian Siats
+                {heroContent?.name || "Ian Siats"}
               </span>
             </motion.h1>
             <motion.p
@@ -246,26 +257,28 @@ export default function Portfolio() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Creative developer crafting exceptional digital experiences with cutting-edge web technologies. I
-              transform ideas into interactive, performant applications that users love.
+              {heroContent?.title || "Creative developer crafting exceptional digital experiences with cutting-edge web technologies. I transform ideas into interactive, performant applications that users love."}
             </motion.p>
-            <motion.p
-              className="text-sm sm:text-base md:text-lg text-gray-300 mb-8 leading-relaxed break-words"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-            >
-              I build full-stack applications using modern JavaScript frameworks. My recent work includes interactive UIs,
-              backend APIs, and deploying full-stack projects using Vercel and MongoDB.
-            </motion.p>
-            <motion.p
-              className="text-sm sm:text-base text-gray-400 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              Open to relocation and remote opportunities worldwide.
-            </motion.p>
+            {heroContent?.subtitle && (
+              <motion.p
+                className="text-sm sm:text-base md:text-lg text-gray-300 mb-8 leading-relaxed break-words"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+              >
+                {heroContent.subtitle}
+              </motion.p>
+            )}
+            {heroContent?.availability && (
+              <motion.p
+                className="text-sm sm:text-base text-gray-400 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                {heroContent.availability}
+              </motion.p>
+            )}
             <motion.div
               className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
               initial={{ opacity: 0, y: 20 }}
@@ -283,7 +296,7 @@ export default function Portfolio() {
                 }}
               >
                 <Mail className="w-5 h-5 mr-2" />
-                Get In Touch
+                {heroContent?.primaryButton || "Get In Touch"}
               </Button>
               <Button
                 variant="outline"
@@ -293,7 +306,7 @@ export default function Portfolio() {
                   document.getElementById("projects-section")?.scrollIntoView({ behavior: "smooth" })
                 }}
               >
-                View Projects
+                {heroContent?.secondaryButton || "View Projects"}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </motion.div>
@@ -363,7 +376,7 @@ export default function Portfolio() {
 
       {/* About Section - Dynamically imported and gated */}
       <div id="about-section">
-        {aboutVisible && <AboutSection skillTags={skillTags} />}
+        {aboutVisible && aboutContent && <AboutSection skillTags={skillTags} aboutContent={aboutContent} />}
       </div>
 
       {/* Projects Section */}
