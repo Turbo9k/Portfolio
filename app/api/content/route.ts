@@ -94,7 +94,7 @@ export async function GET() {
     // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        const redisData = await redis.get<typeof defaultContent>(KV_CONTENT_KEY)
+        const redisData = await redis.get(KV_CONTENT_KEY) as typeof defaultContent | null
         if (redisData && typeof redisData === "object") {
           content = redisData
         }
