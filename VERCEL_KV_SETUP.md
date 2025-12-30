@@ -1,32 +1,40 @@
-# Vercel KV Setup Instructions
+# Upstash Redis Setup Instructions
 
-To enable the CMS to work on Vercel, you need to set up Vercel KV (Redis-based key-value store).
+To enable the CMS to work on Vercel, you need to set up Upstash Redis through the Vercel Marketplace.
 
 ## Steps:
 
-1. **Install Vercel KV in your Vercel project:**
+1. **Install Upstash Redis in your Vercel project:**
    - Go to your Vercel dashboard
    - Navigate to your project
-   - Go to the "Storage" tab
-   - Click "Create Database"
-   - Select "KV" (Redis)
-   - Create the KV store
+   - Go to the "Storage" tab or "Integrations"
+   - Click "Browse Marketplace" or "Add Integration"
+   - Search for "Upstash" and select "Upstash - Serverless DB"
+   - Click "Add Integration" and follow the setup wizard
 
-2. **Link the KV store to your project:**
-   - After creating the KV store, Vercel will automatically add the required environment variables
-   - The environment variables `KV_REST_API_URL`, `KV_REST_API_TOKEN`, etc. will be automatically set
+2. **Create a Redis Database:**
+   - After adding the integration, you'll be prompted to create a Redis database
+   - Choose a name for your database
+   - Select a region close to your Vercel deployment
+   - Create the database
 
-3. **Redeploy your project:**
-   - After setting up KV, redeploy your project
-   - The CMS will now use KV for storage instead of the read-only file system
+3. **Environment Variables:**
+   - After creating the database, Vercel will automatically add the required environment variables:
+     - `UPSTASH_REDIS_REST_URL`
+     - `UPSTASH_REDIS_REST_TOKEN`
+   - These will be automatically available in your Vercel project
+
+4. **Redeploy your project:**
+   - After setting up Upstash Redis, redeploy your project
+   - The CMS will now use Redis for storage instead of the read-only file system
 
 ## How it works:
 
 - **Local Development**: Uses file system (`data/projects.json` and `data/content.json`)
-- **Vercel Production**: Uses Vercel KV for storage (if configured)
-- **Fallback**: If KV is not available, it tries file system, then shows an error
+- **Vercel Production**: Uses Upstash Redis for storage (if configured)
+- **Fallback**: If Redis is not available, it tries file system, then shows an error
 
 ## Free Tier:
 
-Vercel KV has a generous free tier that should be sufficient for a portfolio CMS.
+Upstash Redis has a generous free tier (10,000 commands per day) that should be sufficient for a portfolio CMS.
 

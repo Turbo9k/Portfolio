@@ -6,13 +6,18 @@ import type { Project, ApiResponse } from "@/lib/types"
 const projectsFilePath = path.join(process.cwd(), "data", "projects.json")
 const KV_KEY = "portfolio:projects"
 
-// Try to import KV, but it's optional
-let kv: any = null
+// Try to import Upstash Redis, but it's optional
+let redis: any = null
 try {
-  const kvModule = require("@vercel/kv")
-  kv = kvModule.kv
+  const { Redis } = require("@upstash/redis")
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  }
 } catch {
-  // KV not available, will use file system
+  // Redis not available, will use file system
 }
 
 // Ensure data directory exists
@@ -72,14 +77,14 @@ export async function GET() {
   try {
     let projects: Project[] = defaultProjects
 
-    // Try Vercel KV first (for production)
-    if (kv) {
+    // Try Upstash Redis first (for production)
+    if (redis) {
       try {
-        const kvData = await kv.get<Project[]>(KV_KEY)
-        if (kvData && Array.isArray(kvData)) {
-          projects = kvData
+        const redisData = await redis.get<Project[]>(KV_KEY)
+        if (redisData && Array.isArray(redisData)) {
+          projects = redisData
         }
-      } catch (kvError) {
+      } catch (redisError) {
       // KV not available, try file system (for local development)
       console.log("KV not available, trying file system...")
       try {
@@ -142,19 +147,19 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    // Try Vercel KV first (for production)
-    if (kv) {
+    // Try Upstash Redis first (for production)
+    if (redis) {
       try {
-        await kv.set(KV_KEY, projects)
+        await redis.set(KV_KEY, projects)
         // Also try to sync to file system for backup (if possible)
         try {
           await ensureDataDirectory()
           await fs.writeFile(projectsFilePath, JSON.stringify({ projects }, null, 2), "utf8")
         } catch (fileError) {
-          // File write failed, but KV succeeded, so that's okay
-          console.log("File write failed, but KV save succeeded")
+          // File write failed, but Redis succeeded, so that's okay
+          console.log("File write failed, but Redis save succeeded")
         }
-      } catch (kvError) {
+      } catch (redisError) {
       // KV not available, try file system (for local development)
       console.log("KV not available, trying file system...")
       try {
@@ -166,7 +171,7 @@ export async function POST(request: Request) {
         if (writeError.code === "EACCES" || writeError.code === "EROFS") {
           return NextResponse.json({
             success: false,
-            error: "File system is read-only. Please set up Vercel KV for production use.",
+            error: "File system is read-only. Please set up Upstash Redis through Vercel Marketplace for production use.",
           }, { status: 500 })
         }
         throw writeError
@@ -183,7 +188,7 @@ export async function POST(request: Request) {
         if (writeError.code === "EACCES" || writeError.code === "EROFS") {
           return NextResponse.json({
             success: false,
-            error: "File system is read-only. Please set up Vercel KV for production use.",
+            error: "File system is read-only. Please set up Upstash Redis through Vercel Marketplace for production use.",
           }, { status: 500 })
         }
         throw writeError
