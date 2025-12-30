@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   ArrowLeft,
   Plus,
@@ -19,11 +20,19 @@ import {
   Github,
   Filter,
   Search,
+  Home,
+  User,
+  FileText,
+  Settings,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ProjectForm } from "@/components/admin/project-form"
 import { QuickAddProjects } from "@/components/admin/quick-add-projects"
+import { HeroEditor } from "@/components/admin/hero-editor"
+import { AboutEditor } from "@/components/admin/about-editor"
+import { ResumeEditor } from "@/components/admin/resume-editor"
+import { SettingsEditor } from "@/components/admin/settings-editor"
 
 interface Project {
   id: string
@@ -38,12 +47,25 @@ interface Project {
   status: string
 }
 
+interface ContentData {
+  hero: any
+  about: any
+  resume: any
+  contact: any
+  siteSettings: any
+}
+
 export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
+  const [content, setContent] = useState<ContentData | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | undefined>()
+  const [showHeroEditor, setShowHeroEditor] = useState(false)
+  const [showAboutEditor, setShowAboutEditor] = useState(false)
+  const [showResumeEditor, setShowResumeEditor] = useState(false)
+  const [showSettingsEditor, setShowSettingsEditor] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -58,6 +80,7 @@ export default function AdminDashboard() {
     }
     setIsAuthenticated(true)
     loadProjects()
+    loadContent()
   }, [router])
 
   useEffect(() => {
@@ -92,6 +115,37 @@ export default function AdminDashboard() {
       showMessage("error", "Failed to load projects")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadContent = async () => {
+    try {
+      const response = await fetch("/api/content")
+      if (!response.ok) throw new Error("Failed to fetch content")
+      const data = await response.json()
+      setContent(data.data || data)
+    } catch (error) {
+      console.error("Failed to load content:", error)
+      showMessage("error", "Failed to load content")
+    }
+  }
+
+  const saveContent = async (updatedContent: ContentData) => {
+    try {
+      const response = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: updatedContent }),
+      })
+
+      if (!response.ok) throw new Error("Failed to save content")
+      showMessage("success", "Content saved successfully!")
+      setContent(updatedContent)
+      return true
+    } catch (error) {
+      console.error("Failed to save content:", error)
+      showMessage("error", "Failed to save content")
+      return false
     }
   }
 
@@ -198,6 +252,42 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleSaveHero = async (heroContent: any) => {
+    if (!content) return
+    const updatedContent = { ...content, hero: heroContent }
+    const success = await saveContent(updatedContent)
+    if (success) {
+      setShowHeroEditor(false)
+    }
+  }
+
+  const handleSaveAbout = async (aboutContent: any) => {
+    if (!content) return
+    const updatedContent = { ...content, about: aboutContent }
+    const success = await saveContent(updatedContent)
+    if (success) {
+      setShowAboutEditor(false)
+    }
+  }
+
+  const handleSaveResume = async (resumeContent: any) => {
+    if (!content) return
+    const updatedContent = { ...content, resume: resumeContent }
+    const success = await saveContent(updatedContent)
+    if (success) {
+      setShowResumeEditor(false)
+    }
+  }
+
+  const handleSaveSettings = async (siteSettings: any, contactInfo: any) => {
+    if (!content) return
+    const updatedContent = { ...content, siteSettings, contact: contactInfo }
+    const success = await saveContent(updatedContent)
+    if (success) {
+      setShowSettingsEditor(false)
+    }
+  }
+
   const statusOptions = ["All", "Live", "In Development", "Planning", "Archived"]
 
   if (!isAuthenticated) {
@@ -275,8 +365,34 @@ export default function AdminDashboard() {
       </AnimatePresence>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Tabs defaultValue="projects" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 bg-white/5 border border-white/10 mb-8">
+            <TabsTrigger value="projects" className="data-[state=active]:bg-white/10">
+              <Github className="w-4 h-4 mr-2" />
+              Projects
+            </TabsTrigger>
+            <TabsTrigger value="hero" className="data-[state=active]:bg-white/10">
+              <Home className="w-4 h-4 mr-2" />
+              Hero
+            </TabsTrigger>
+            <TabsTrigger value="about" className="data-[state=active]:bg-white/10">
+              <User className="w-4 h-4 mr-2" />
+              About
+            </TabsTrigger>
+            <TabsTrigger value="resume" className="data-[state=active]:bg-white/10">
+              <FileText className="w-4 h-4 mr-2" />
+              Resume
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-white/10">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Projects Tab */}
+          <TabsContent value="projects">
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="text-center">
@@ -519,25 +635,143 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-400 mb-4">
-            Manage your portfolio projects with full CRUD operations. Changes are saved automatically.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" className="border-white/20 hover:bg-white/10" onClick={loadProjects}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Reload Projects
-            </Button>
-            <Button variant="outline" className="border-white/20 hover:bg-white/10" onClick={handleAddProject}>
-              <Plus className="w-4 h-4 mr-2" />
-              Quick Add
-            </Button>
-          </div>
-        </div>
+            {/* Quick Actions */}
+            <div className="mt-8 text-center">
+              <p className="text-gray-400 mb-4">
+                Manage your portfolio projects with full CRUD operations. Changes are saved automatically.
+              </p>
+              <div className="flex justify-center gap-4">
+                <Button variant="outline" className="border-white/20 hover:bg-white/10" onClick={loadProjects}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reload Projects
+                </Button>
+                <Button variant="outline" className="border-white/20 hover:bg-white/10" onClick={handleAddProject}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Quick Add
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Hero Tab */}
+          <TabsContent value="hero">
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">Hero Section</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Edit the main hero section content on your homepage.</p>
+                <Button onClick={() => setShowHeroEditor(true)} className="bg-blue-500 hover:bg-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Hero Section
+                </Button>
+                {content?.hero && (
+                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h3 className="text-white font-semibold mb-2">Current Content Preview:</h3>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Name:</span> {content.hero.name}
+                    </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Title:</span> {content.hero.title.substring(0, 100)}...
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* About Tab */}
+          <TabsContent value="about">
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">About Section</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Edit the about section content and skills.</p>
+                <Button onClick={() => setShowAboutEditor(true)} className="bg-blue-500 hover:bg-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit About Section
+                </Button>
+                {content?.about && (
+                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h3 className="text-white font-semibold mb-2">Current Content Preview:</h3>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Title:</span> {content.about.title}
+                    </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Skills:</span> {Object.values(content.about.skills || {}).flat().length} total skills
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Resume Tab */}
+          <TabsContent value="resume">
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">Resume Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Edit the resume page content.</p>
+                <Button onClick={() => setShowResumeEditor(true)} className="bg-blue-500 hover:bg-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Resume Content
+                </Button>
+                {content?.resume && (
+                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h3 className="text-white font-semibold mb-2">Current Content Preview:</h3>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Name:</span> {content.resume.name}
+                    </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Title:</span> {content.resume.title}
+                    </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Email:</span> {content.resume.email}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">Site Settings & Contact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Edit site-wide settings and contact information.</p>
+                <Button onClick={() => setShowSettingsEditor(true)} className="bg-blue-500 hover:bg-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Settings
+                </Button>
+                {content?.siteSettings && (
+                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h3 className="text-white font-semibold mb-2">Current Settings:</h3>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Site Name:</span> {content.siteSettings.siteName}
+                    </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Author:</span> {content.siteSettings.authorName}
+                    </p>
+                    {content.contact && (
+                      <p className="text-gray-300 text-sm mb-1">
+                        <span className="text-gray-400">Contact Email:</span> {content.contact.email}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Project Form Modal */}
+      {/* Modals */}
       <AnimatePresence>
         {showForm && (
           <ProjectForm
@@ -547,6 +781,35 @@ export default function AdminDashboard() {
               setShowForm(false)
               setEditingProject(undefined)
             }}
+          />
+        )}
+        {showHeroEditor && content && (
+          <HeroEditor
+            content={content.hero}
+            onSave={handleSaveHero}
+            onCancel={() => setShowHeroEditor(false)}
+          />
+        )}
+        {showAboutEditor && content && (
+          <AboutEditor
+            content={content.about}
+            onSave={handleSaveAbout}
+            onCancel={() => setShowAboutEditor(false)}
+          />
+        )}
+        {showResumeEditor && content && (
+          <ResumeEditor
+            content={content.resume}
+            onSave={handleSaveResume}
+            onCancel={() => setShowResumeEditor(false)}
+          />
+        )}
+        {showSettingsEditor && content && (
+          <SettingsEditor
+            siteSettings={content.siteSettings}
+            contactInfo={content.contact}
+            onSave={handleSaveSettings}
+            onCancel={() => setShowSettingsEditor(false)}
           />
         )}
       </AnimatePresence>
