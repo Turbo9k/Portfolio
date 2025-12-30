@@ -80,7 +80,7 @@ export async function GET() {
     // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        const redisData = await redis.get<Project[]>(KV_KEY)
+        const redisData = await redis.get(KV_KEY) as Project[] | null
         if (redisData && Array.isArray(redisData)) {
           projects = redisData
         }
