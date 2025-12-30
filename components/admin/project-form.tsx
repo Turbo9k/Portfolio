@@ -20,6 +20,11 @@ interface Project {
   featured: boolean
   color: string
   status: string
+  role?: string
+  stack?: string
+  summary?: string
+  challenges?: string
+  background?: string
 }
 
 interface ProjectFormProps {
@@ -55,6 +60,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
     featured: false,
     color: colorOptions[0],
     status: "Planning",
+    role: "",
+    stack: "",
+    summary: "",
+    challenges: "",
+    background: "",
   })
   const [newTech, setNewTech] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -238,6 +248,67 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   ))}
                 </div>
                 {errors.tech && <p className="mt-1 text-sm text-red-400">{errors.tech}</p>}
+              </div>
+
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Role</label>
+                <input
+                  type="text"
+                  value={formData.role || ""}
+                  onChange={(e) => handleInputChange("role", e.target.value)}
+                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="e.g., Full-stack developer"
+                />
+              </div>
+
+              {/* Stack */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Stack</label>
+                <input
+                  type="text"
+                  value={formData.stack || ""}
+                  onChange={(e) => handleInputChange("stack", e.target.value)}
+                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="e.g., React, Node.js, Express, MongoDB"
+                />
+              </div>
+
+              {/* Summary */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Summary</label>
+                <textarea
+                  value={formData.summary || ""}
+                  onChange={(e) => handleInputChange("summary", e.target.value)}
+                  rows={3}
+                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                  placeholder="Brief summary of the project..."
+                />
+              </div>
+
+              {/* Challenges */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Challenges</label>
+                <textarea
+                  value={formData.challenges || ""}
+                  onChange={(e) => handleInputChange("challenges", e.target.value)}
+                  rows={4}
+                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                  placeholder="Describe challenges faced and solutions..."
+                />
+              </div>
+
+              {/* Background */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Background (CSS gradient or color)</label>
+                <input
+                  type="text"
+                  value={formData.background || ""}
+                  onChange={(e) => handleInputChange("background", e.target.value)}
+                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="e.g., linear-gradient(135deg, #667eea 0%, #764ba2 100%) or #667eea"
+                />
+                <p className="mt-1 text-xs text-gray-400">Leave empty to use default gradient based on color theme</p>
               </div>
 
               {/* Color Theme */}

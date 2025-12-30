@@ -25,6 +25,11 @@ interface Project {
   featured: boolean
   color: string
   status: string
+  role?: string
+  stack?: string
+  summary?: string
+  challenges?: string
+  background?: string
 }
 
 export default function Portfolio() {
@@ -200,16 +205,16 @@ export default function Portfolio() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="#about" className="hover:text-blue-400 transition-colors" prefetch={false}>
+            <Link href="#about" className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all" prefetch={false}>
               About
             </Link>
-            <Link prefetch={false} href="/projects" className="hover:text-blue-400 transition-colors">
+            <Link prefetch={false} href="/projects" className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all">
               Projects
             </Link>
             <Link 
               prefetch={false} 
               href="#contact" 
-              className="hover:text-blue-400 transition-colors"
+              className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
               onClick={(e) => {
                 e.preventDefault()
                 setContactVisible(true)
@@ -416,7 +421,12 @@ export default function Portfolio() {
                 <Card className="bg-white/5 border-white/10 backdrop-blur-sm overflow-hidden h-full">
                   <CardContent className="p-0">
                     <div
-                      className={`h-40 sm:h-48 bg-gradient-to-br ${project.color} flex items-center justify-center text-4xl sm:text-6xl relative overflow-hidden`}
+                      className={`h-40 sm:h-48 flex items-center justify-center text-4xl sm:text-6xl relative overflow-hidden ${
+                        project.background 
+                          ? "" 
+                          : `bg-gradient-to-br ${project.color}`
+                      }`}
+                      style={project.background ? { background: project.background } : {}}
                     >
                       <span className="relative z-10" role="img" aria-label={project.title}>
                         {project.image}
@@ -465,18 +475,22 @@ export default function Portfolio() {
                           </Badge>
                         ))}
                       </div>
-                      <div className="space-y-1 text-sm text-gray-300">
-                        <p><span className="text-white font-semibold">Role:</span> Full-stack developer</p>
-                        <p>
-                          <span className="text-white font-semibold">Stack:</span> React, Node.js, Express, MongoDB
-                        </p>
-                        <p>
-                          <span className="text-white font-semibold">Summary:</span> Built a responsive e-commerce site with full product management. Users can sign up, add products to cart, and check out with Stripe integration.
-                        </p>
-                        <p>
-                          <span className="text-white font-semibold">Challenges:</span> Learned secure auth, handled async data flow with React hooks, and deployed using Vercel + MongoDB Atlas.
-                        </p>
-                      </div>
+                      {(project.role || project.stack || project.summary || project.challenges) && (
+                        <div className="space-y-2 text-sm text-gray-300 mt-4 pt-4 border-t border-white/10">
+                          {project.role && (
+                            <p><span className="text-white font-semibold">Role:</span> {project.role}</p>
+                          )}
+                          {project.stack && (
+                            <p><span className="text-white font-semibold">Stack:</span> {project.stack}</p>
+                          )}
+                          {project.summary && (
+                            <p><span className="text-white font-semibold">Summary:</span> {project.summary}</p>
+                          )}
+                          {project.challenges && (
+                            <p><span className="text-white font-semibold">Challenges:</span> {project.challenges}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

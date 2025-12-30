@@ -10,6 +10,11 @@ export interface Project {
   featured: boolean
   color: string
   status: "Live" | "In Development" | "Planning" | "Archived"
+  role?: string
+  stack?: string
+  summary?: string
+  challenges?: string
+  background?: string
 }
 
 // Contact form types

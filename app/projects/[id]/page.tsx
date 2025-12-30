@@ -19,6 +19,11 @@ interface Project {
   featured: boolean
   color: string
   status: string
+  role?: string
+  stack?: string
+  summary?: string
+  challenges?: string
+  background?: string
 }
 
 export default function ProjectDetailPage() {
@@ -89,35 +94,36 @@ export default function ProjectDetailPage() {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-3">
-              <h2 className="text-xl font-semibold text-white">Role & Stack</h2>
-              <p className="text-gray-300">Role: Full‑stack developer</p>
-              <p className="text-gray-300">Stack: React/Next.js, Node.js, Express, MongoDB (plus per‑project extras)</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-3">
-              <h2 className="text-xl font-semibold text-white">Challenges & Solutions</h2>
-              <ul className="list-disc list-inside text-gray-300 space-y-1">
-                <li>Auth flows and session handling → role-based guards, secure cookies.</li>
-                <li>Async data flow → React hooks, SWR patterns, API route caching.</li>
-                <li>Deploy & env management → Vercel envs, logging, monitoring.</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+        {(project.role || project.stack || project.summary || project.challenges) && (
+          <div className="grid md:grid-cols-2 gap-6">
+            {(project.role || project.stack) && (
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardContent className="p-6 space-y-3">
+                  <h2 className="text-xl font-semibold text-white">Role & Stack</h2>
+                  {project.role && <p className="text-gray-300">Role: {project.role}</p>}
+                  {project.stack && <p className="text-gray-300">Stack: {project.stack}</p>}
+                </CardContent>
+              </Card>
+            )}
+            {project.challenges && (
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardContent className="p-6 space-y-3">
+                  <h2 className="text-xl font-semibold text-white">Challenges & Solutions</h2>
+                  <p className="text-gray-300">{project.challenges}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
-        <Card className="bg-white/5 border-white/10 backdrop-blur-sm mt-6">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold text-white mb-2">Architecture / Data Flow</h2>
-            <p className="text-gray-300">
-              Client (Next.js App Router) → API routes (/app/api) → Business logic → Database. Auth middleware protects
-              admin and sensitive areas. Static assets served via Next Image for optimized delivery.
-            </p>
-          </CardContent>
-        </Card>
+        {project.summary && (
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm mt-6">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold text-white mb-2">Summary</h2>
+              <p className="text-gray-300">{project.summary}</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

@@ -24,6 +24,7 @@ import {
   User,
   FileText,
   Settings,
+  GripVertical,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -70,6 +71,8 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -175,6 +178,42 @@ export default function AdminDashboard() {
       showMessage("error", error.message || "Failed to save projects")
       return false
     }
+  }
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setDragOverIndex(index)
+    }
+  }
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      const newProjects = [...projects]
+      const [removed] = newProjects.splice(draggedIndex, 1)
+      newProjects.splice(dragOverIndex, 0, removed)
+      setProjects(newProjects)
+      saveProjects(newProjects)
+    }
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      const newProjects = [...projects]
+      const [removed] = newProjects.splice(draggedIndex, 1)
+      newProjects.splice(index, 0, removed)
+      setProjects(newProjects)
+      saveProjects(newProjects)
+    }
+    setDraggedIndex(null)
+    setDragOverIndex(null)
   }
 
   const showMessage = (type: "success" | "error", text: string) => {
@@ -524,16 +563,34 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredProjects.map((project, index) => (
+                {filteredProjects.map((project, index) => {
+                  const actualIndex = projects.findIndex(p => p.id === project.id)
+                  return (
                   <motion.div
                     key={project.id}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ 
+                      opacity: draggedIndex === actualIndex ? 0.5 : 1, 
+                      y: 0,
+                      scale: dragOverIndex === actualIndex ? 1.02 : 1
+                    }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors"
+                    draggable
+                    onDragStart={() => handleDragStart(actualIndex)}
+                    onDragOver={(e) => handleDragOver(e, actualIndex)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={(e) => handleDrop(e, actualIndex)}
+                    className={`p-4 bg-white/5 rounded-lg border transition-all cursor-move ${
+                      dragOverIndex === actualIndex 
+                        ? "border-blue-500/50 bg-blue-500/10" 
+                        : draggedIndex === actualIndex
+                        ? "border-purple-500/50 opacity-50"
+                        : "border-white/10 hover:bg-white/10"
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
+                        <GripVertical className="w-5 h-5 text-gray-400 cursor-grab active:cursor-grabbing" />
                         <div className="text-3xl">{project.image}</div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-semibold text-white truncate">{project.title}</h3>
@@ -639,7 +696,8 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </CardContent>
