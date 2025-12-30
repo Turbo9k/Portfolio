@@ -21,19 +21,34 @@ export default function AdminLogin() {
     setIsLoading(true)
     setError("")
 
-    // Get stored credentials or use defaults
-    const storedEmail = localStorage.getItem("admin-email") || "ian"
-    const storedPassword = localStorage.getItem("admin-password") || "portfolio2024"
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: credentials.username,
+          password: credentials.password,
+        }),
+      })
 
-    // Simple authentication (in production, use proper auth)
-    if (credentials.username === storedEmail && credentials.password === storedPassword) {
-      localStorage.setItem("admin-authenticated", "true")
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        setError(data.error || "Invalid credentials")
+        setIsLoading(false)
+        return
+      }
+
+      // Successfully authenticated - cookie is set automatically
       router.push("/admin/dashboard")
-    } else {
-      setError("Invalid credentials")
+    } catch (err: any) {
+      setError("Network error. Please try again.")
+      console.error("Login error:", err)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   return (

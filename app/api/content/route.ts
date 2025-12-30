@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
 import type { ApiResponse } from "@/lib/types"
+import { requireAuth } from "@/lib/middleware"
 
 const contentFilePath = path.join(process.cwd(), "data", "content.json")
 const KV_CONTENT_KEY = "portfolio:content"
@@ -155,8 +156,14 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Require authentication for write operations
+    const auth = await requireAuth(request)
+    if (!auth.authenticated) {
+      return auth.response!
+    }
+    
     const body = await request.json()
     const { content } = body
 

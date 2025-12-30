@@ -58,20 +58,33 @@ export function AdminCredentialsEditor({ credentials, onSave, onCancel }: AdminC
     e.preventDefault()
     setMessage(null)
 
-    // Verify current password
-    const storedPassword = localStorage.getItem("admin-password") || "portfolio2024"
-    if (currentPassword !== storedPassword) {
-      setErrors({ currentPassword: "Current password is incorrect" })
-      setMessage({ type: "error", text: "Current password verification failed" })
+    if (!validateForm()) {
       return
     }
 
-    if (validateForm()) {
-      // Store new password in localStorage (in production, use proper auth)
-      localStorage.setItem("admin-email", formData.email)
-      localStorage.setItem("admin-password", formData.password)
-      
-      onSave(formData)
+    try {
+      const response = await fetch("/api/auth/update-credentials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          currentPassword: currentPassword,
+          newPassword: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        setErrors({ currentPassword: data.error || "Failed to update credentials" })
+        setMessage({ type: "error", text: data.error || "Failed to update credentials" })
+        return
+      }
+
+      onSave({ email: formData.email, password: "••••••••" })
       setMessage({ type: "success", text: "Admin credentials updated successfully!" })
       
       // Clear form after successful save
@@ -79,6 +92,9 @@ export function AdminCredentialsEditor({ credentials, onSave, onCancel }: AdminC
         setCurrentPassword("")
         setMessage(null)
       }, 2000)
+    } catch (error: any) {
+      setMessage({ type: "error", text: "Network error. Please try again." })
+      console.error("Update credentials error:", error)
     }
   }
 
@@ -110,9 +126,9 @@ export function AdminCredentialsEditor({ credentials, onSave, onCancel }: AdminC
               </Alert>
             )}
 
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-              <p className="text-yellow-400 text-sm">
-                <strong>Security Note:</strong> These credentials are stored locally. For production, implement proper authentication with hashed passwords and secure storage.
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 text-sm">
+                <strong>✓ Secure Storage:</strong> Passwords are hashed with bcrypt and stored securely in Redis. Sessions are managed with JWT tokens.
               </p>
             </div>
 

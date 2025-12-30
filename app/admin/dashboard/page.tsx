@@ -80,19 +80,33 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    const auth = localStorage.getItem("admin-authenticated")
-    if (!auth) {
-      router.push("/admin/login")
-      return
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/verify", {
+          credentials: "include",
+        })
+        const data = await response.json()
+        
+        if (!response.ok || !data.authenticated) {
+          router.push("/admin/login")
+          return
+        }
+        
+        setIsAuthenticated(true)
+        loadProjects()
+        loadContent()
+        
+        // Load admin email from verified auth
+        if (data.user?.email) {
+          setAdminCredentials({ email: data.user.email, password: "••••••••" })
+        }
+      } catch (error) {
+        console.error("Auth check error:", error)
+        router.push("/admin/login")
+      }
     }
-    setIsAuthenticated(true)
-    loadProjects()
-    loadContent()
     
-    // Load admin credentials from localStorage
-    const storedEmail = localStorage.getItem("admin-email") || "ian"
-    const storedPassword = localStorage.getItem("admin-password") || "portfolio2024"
-    setAdminCredentials({ email: storedEmail, password: storedPassword })
+    checkAuth()
   }, [router])
 
   useEffect(() => {
@@ -230,9 +244,17 @@ export default function AdminDashboard() {
     setTimeout(() => setMessage(null), 5000)
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-authenticated")
-    router.push("/admin/login")
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      router.push("/admin/login")
+    }
   }
 
   const handleAddProject = () => {
@@ -349,7 +371,7 @@ export default function AdminDashboard() {
   const handleSaveAdminCredentials = async (credentials: { email: string; password: string }) => {
     setAdminCredentials(credentials)
     setShowAdminCredentialsEditor(false)
-    showMessage("success", "Admin credentials updated successfully!")
+    // Message is already shown in the editor component
   }
 
   const statusOptions = ["All", "Live", "In Development", "Planning", "Archived"]
@@ -876,8 +898,8 @@ export default function AdminDashboard() {
                   <p className="text-gray-300 text-sm mb-1">
                     <span className="text-gray-400">Password:</span> {"•".repeat(adminCredentials.password.length)}
                   </p>
-                  <p className="text-yellow-400 text-xs mt-2">
-                    ⚠️ For production, implement proper authentication with hashed passwords.
+                  <p className="text-green-400 text-xs mt-2">
+                    ✓ Secure: Passwords are hashed and stored in Redis. Sessions use JWT tokens.
                   </p>
                 </div>
               </CardContent>
