@@ -10,6 +10,15 @@ interface SiteSettings {
   siteDescription: string
   authorName: string
   authorEmail: string
+  themeColor?: string
+  customCSS?: string
+  socialLinks?: {
+    twitter?: string
+    linkedin?: string
+    github?: string
+    instagram?: string
+    youtube?: string
+  }
 }
 
 interface ContactInfo {
@@ -27,7 +36,12 @@ interface SettingsEditorProps {
 }
 
 export function SettingsEditor({ siteSettings, contactInfo, onSave, onCancel }: SettingsEditorProps) {
-  const [settings, setSettings] = useState<SiteSettings>(siteSettings)
+  const [settings, setSettings] = useState<SiteSettings>({
+    ...siteSettings,
+    themeColor: siteSettings.themeColor || "#3b82f6",
+    customCSS: siteSettings.customCSS || "",
+    socialLinks: siteSettings.socialLinks || {},
+  })
   const [contact, setContact] = useState<ContactInfo>(contactInfo)
 
   useEffect(() => {
@@ -139,6 +153,116 @@ export function SettingsEditor({ siteSettings, contactInfo, onSave, onCancel }: 
                       className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Theme & Customization</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Theme Color</label>
+                  <div className="flex gap-4 items-center">
+                    <input
+                      type="color"
+                      value={settings.themeColor || "#3b82f6"}
+                      onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
+                      className="w-20 h-10 rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={settings.themeColor || "#3b82f6"}
+                      onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
+                      className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="#3b82f6"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Custom CSS (Advanced)</label>
+                  <textarea
+                    value={settings.customCSS || ""}
+                    onChange={(e) => setSettings({ ...settings, customCSS: e.target.value })}
+                    rows={4}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                    placeholder="/* Add custom CSS here */"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">Add custom CSS to override default styles</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Social Media Links</h3>
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Twitter/X URL</label>
+                    <input
+                      type="url"
+                      value={settings.socialLinks?.twitter || ""}
+                      onChange={(e) => setSettings({ 
+                        ...settings, 
+                        socialLinks: { ...settings.socialLinks, twitter: e.target.value }
+                      })}
+                      className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="https://twitter.com/username"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">LinkedIn URL</label>
+                    <input
+                      type="url"
+                      value={settings.socialLinks?.linkedin || ""}
+                      onChange={(e) => setSettings({ 
+                        ...settings, 
+                        socialLinks: { ...settings.socialLinks, linkedin: e.target.value }
+                      })}
+                      className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="https://linkedin.com/in/username"
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">GitHub URL</label>
+                    <input
+                      type="url"
+                      value={settings.socialLinks?.github || ""}
+                      onChange={(e) => setSettings({ 
+                        ...settings, 
+                        socialLinks: { ...settings.socialLinks, github: e.target.value }
+                      })}
+                      className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="https://github.com/username"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Instagram URL</label>
+                    <input
+                      type="url"
+                      value={settings.socialLinks?.instagram || ""}
+                      onChange={(e) => setSettings({ 
+                        ...settings, 
+                        socialLinks: { ...settings.socialLinks, instagram: e.target.value }
+                      })}
+                      className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="https://instagram.com/username"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">YouTube URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.youtube || ""}
+                    onChange={(e) => setSettings({ 
+                      ...settings, 
+                      socialLinks: { ...settings.socialLinks, youtube: e.target.value }
+                    })}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="https://youtube.com/@username"
+                  />
                 </div>
               </div>
             </div>

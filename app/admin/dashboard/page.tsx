@@ -34,6 +34,7 @@ import { HeroEditor } from "@/components/admin/hero-editor"
 import { AboutEditor } from "@/components/admin/about-editor"
 import { ResumeEditor } from "@/components/admin/resume-editor"
 import { SettingsEditor } from "@/components/admin/settings-editor"
+import { AdminCredentialsEditor } from "@/components/admin/admin-credentials-editor"
 
 interface Project {
   id: string
@@ -67,6 +68,8 @@ export default function AdminDashboard() {
   const [showAboutEditor, setShowAboutEditor] = useState(false)
   const [showResumeEditor, setShowResumeEditor] = useState(false)
   const [showSettingsEditor, setShowSettingsEditor] = useState(false)
+  const [showAdminCredentialsEditor, setShowAdminCredentialsEditor] = useState(false)
+  const [adminCredentials, setAdminCredentials] = useState({ email: "ian", password: "portfolio2024" })
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -84,6 +87,11 @@ export default function AdminDashboard() {
     setIsAuthenticated(true)
     loadProjects()
     loadContent()
+    
+    // Load admin credentials from localStorage
+    const storedEmail = localStorage.getItem("admin-email") || "ian"
+    const storedPassword = localStorage.getItem("admin-password") || "portfolio2024"
+    setAdminCredentials({ email: storedEmail, password: storedPassword })
   }, [router])
 
   useEffect(() => {
@@ -337,6 +345,12 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleSaveAdminCredentials = async (credentials: { email: string; password: string }) => {
+    setAdminCredentials(credentials)
+    setShowAdminCredentialsEditor(false)
+    showMessage("success", "Admin credentials updated successfully!")
+  }
+
   const statusOptions = ["All", "Live", "In Development", "Planning", "Archived"]
 
   if (!isAuthenticated) {
@@ -415,7 +429,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="projects" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-white/5 border border-white/10 mb-8">
+          <TabsList className="grid w-full grid-cols-6 bg-white/5 border border-white/10 mb-8">
             <TabsTrigger value="projects" className="data-[state=active]:bg-white/10">
               <Github className="w-4 h-4 mr-2" />
               Projects
@@ -435,6 +449,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="settings" className="data-[state=active]:bg-white/10">
               <Settings className="w-4 h-4 mr-2" />
               Settings
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="data-[state=active]:bg-white/10">
+              <Lock className="w-4 h-4 mr-2" />
+              Admin
             </TabsTrigger>
           </TabsList>
 
@@ -836,6 +854,34 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Admin Credentials Tab */}
+          <TabsContent value="admin">
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">Admin Credentials</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Manage your admin login credentials.</p>
+                <Button onClick={() => setShowAdminCredentialsEditor(true)} className="bg-blue-500 hover:bg-blue-600">
+                  <Lock className="w-4 h-4 mr-2" />
+                  Change Admin Credentials
+                </Button>
+                <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                  <h3 className="text-white font-semibold mb-2">Current Credentials:</h3>
+                  <p className="text-gray-300 text-sm mb-1">
+                    <span className="text-gray-400">Email/Username:</span> {adminCredentials.email}
+                  </p>
+                  <p className="text-gray-300 text-sm mb-1">
+                    <span className="text-gray-400">Password:</span> {"•".repeat(adminCredentials.password.length)}
+                  </p>
+                  <p className="text-yellow-400 text-xs mt-2">
+                    ⚠️ For production, implement proper authentication with hashed passwords.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -878,6 +924,13 @@ export default function AdminDashboard() {
             contactInfo={content.contact}
             onSave={handleSaveSettings}
             onCancel={() => setShowSettingsEditor(false)}
+          />
+        )}
+        {showAdminCredentialsEditor && (
+          <AdminCredentialsEditor
+            credentials={adminCredentials}
+            onSave={handleSaveAdminCredentials}
+            onCancel={() => setShowAdminCredentialsEditor(false)}
           />
         )}
       </AnimatePresence>

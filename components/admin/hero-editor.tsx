@@ -13,6 +13,11 @@ interface HeroContent {
   availability: string
   primaryButton: string
   secondaryButton: string
+  heroBackgroundColor?: string
+  heroTextColor?: string
+  buttonPrimaryColor?: string
+  buttonSecondaryColor?: string
+  profileImageUrl?: string
 }
 
 interface HeroEditorProps {
@@ -22,7 +27,14 @@ interface HeroEditorProps {
 }
 
 export function HeroEditor({ content, onSave, onCancel }: HeroEditorProps) {
-  const [formData, setFormData] = useState<HeroContent>(content)
+  const [formData, setFormData] = useState<HeroContent>({
+    ...content,
+    heroBackgroundColor: content.heroBackgroundColor || "",
+    heroTextColor: content.heroTextColor || "",
+    buttonPrimaryColor: content.buttonPrimaryColor || "",
+    buttonSecondaryColor: content.buttonSecondaryColor || "",
+    profileImageUrl: content.profileImageUrl || "",
+  })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -145,6 +157,99 @@ export function HeroEditor({ content, onSave, onCancel }: HeroEditorProps) {
                   className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="View Projects"
                 />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 mt-6">Customization (Optional)</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Profile Image URL</label>
+                  <input
+                    type="url"
+                    value={formData.profileImageUrl || ""}
+                    onChange={(e) => handleChange("profileImageUrl", e.target.value)}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">URL to your profile image (optional)</p>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Hero Background Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.heroBackgroundColor || "#0f172a"}
+                        onChange={(e) => handleChange("heroBackgroundColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.heroBackgroundColor || ""}
+                        onChange={(e) => handleChange("heroBackgroundColor", e.target.value)}
+                        className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="#0f172a or gradient"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Hero Text Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.heroTextColor || "#ffffff"}
+                        onChange={(e) => handleChange("heroTextColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.heroTextColor || ""}
+                        onChange={(e) => handleChange("heroTextColor", e.target.value)}
+                        className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Primary Button Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.buttonPrimaryColor || "#3b82f6"}
+                        onChange={(e) => handleChange("buttonPrimaryColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.buttonPrimaryColor || ""}
+                        onChange={(e) => handleChange("buttonPrimaryColor", e.target.value)}
+                        className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="#3b82f6"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Secondary Button Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.buttonSecondaryColor || "#8b5cf6"}
+                        onChange={(e) => handleChange("buttonSecondaryColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.buttonSecondaryColor || ""}
+                        onChange={(e) => handleChange("buttonSecondaryColor", e.target.value)}
+                        className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="#8b5cf6"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

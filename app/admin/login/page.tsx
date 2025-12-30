@@ -21,8 +21,12 @@ export default function AdminLogin() {
     setIsLoading(true)
     setError("")
 
+    // Get stored credentials or use defaults
+    const storedEmail = localStorage.getItem("admin-email") || "ian"
+    const storedPassword = localStorage.getItem("admin-password") || "portfolio2024"
+
     // Simple authentication (in production, use proper auth)
-    if (credentials.username === "ian" && credentials.password === "portfolio2024") {
+    if (credentials.username === storedEmail && credentials.password === storedPassword) {
       localStorage.setItem("admin-authenticated", "true")
       router.push("/admin/dashboard")
     } else {
