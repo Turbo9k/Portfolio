@@ -17,7 +17,15 @@ try {
   // Redis not available
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "your-super-secret-jwt-key-change-this-in-production"
+// JWT_SECRET must be set via environment variable - no fallback for security
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
+if (!JWT_SECRET) {
+  throw new Error(
+    "JWT_SECRET or NEXTAUTH_SECRET environment variable must be set. " +
+    "Generate one with: openssl rand -base64 32"
+  )
+}
+
 const JWT_EXPIRES_IN = "7d"
 const ADMIN_CREDENTIALS_KEY = "portfolio:admin:credentials"
 const SESSION_KEY_PREFIX = "portfolio:admin:session:"

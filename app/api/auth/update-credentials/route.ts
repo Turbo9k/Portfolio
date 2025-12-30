@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyToken, verifySession, getAdminCredentials, hashPassword, saveAdminCredentials, verifyPassword } from "@/lib/auth"
+import { validateEmail, validatePassword } from "@/lib/input-validation"
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,18 +30,40 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { email, currentPassword, newPassword } = body
+    const { email: rawEmail, currentPassword, newPassword } = body
     
-    if (!email || !currentPassword || !newPassword) {
+    // Validate inputs exist
+    if (!rawEmail || !currentPassword || !newPassword) {
       return NextResponse.json(
         { success: false, error: "Email, current password, and new password are required" },
         { status: 400 }
       )
     }
-    
-    if (newPassword.length < 8) {
+
+    // Validate and sanitize email
+    const emailValidation = validateEmail(rawEmail)
+    if (!emailValidation.valid || !emailValidation.email) {
       return NextResponse.json(
-        { success: false, error: "New password must be at least 8 characters long" },
+        { success: false, error: emailValidation.error || "Invalid email format" },
+        { status: 400 }
+      )
+    }
+
+    const email = emailValidation.email
+
+    // Validate current password
+    if (typeof currentPassword !== "string" || currentPassword.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "Current password is required" },
+        { status: 400 }
+      )
+    }
+
+    // Validate new password strength
+    const passwordValidation = validatePassword(newPassword)
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { success: false, error: passwordValidation.error || "Password does not meet requirements" },
         { status: 400 }
       )
     }

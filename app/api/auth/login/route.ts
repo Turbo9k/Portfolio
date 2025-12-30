@@ -1,68 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
-import { verifyPassword, getAdminCredentials, generateToken, createSession, verifyToken } from "@/lib/auth"
-
-// Rate limiting (simple in-memory store - use Redis in production for distributed systems)
-const loginAttempts = new Map<string, { count: number; resetTime: number }>()
-const MAX_ATTEMPTS = 5
-const LOCKOUT_TIME = 15 * 60 * 1000 // 15 minutes
-
-function getRateLimitKey(ip: string): string {
-  return `login:${ip}`
-}
-
-function checkRateLimit(ip: string): { allowed: boolean; remainingTime?: number } {
-  const key = getRateLimitKey(ip)
-  const attempt = loginAttempts.get(key)
-  
-  if (!attempt) {
-    return { allowed: true }
-  }
-  
-  if (attempt.count >= MAX_ATTEMPTS) {
-    const remainingTime = attempt.resetTime - Date.now()
-    if (remainingTime > 0) {
-      return { allowed: false, remainingTime }
-    } else {
-      // Reset after lockout period
-      loginAttempts.delete(key)
-      return { allowed: true }
-    }
-  }
-  
-  return { allowed: true }
-}
-
-function recordFailedAttempt(ip: string): void {
-  const key = getRateLimitKey(ip)
-  const attempt = loginAttempts.get(key)
-  
-  if (!attempt) {
-    loginAttempts.set(key, {
-      count: 1,
-      resetTime: Date.now() + LOCKOUT_TIME,
-    })
-  } else {
-    loginAttempts.set(key, {
-      count: attempt.count + 1,
-      resetTime: attempt.resetTime,
-    })
-  }
-}
-
-function recordSuccess(ip: string): void {
-  const key = getRateLimitKey(ip)
-  loginAttempts.delete(key)
-}
+import { verifyPassword, getAdminCredentials, generateToken, createSession } from "@/lib/auth"
+import { checkRateLimit, recordFailedAttempt, recordSuccess } from "@/lib/rate-limit"
+import { validateEmail } from "@/lib/input-validation"
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || 
+    // Get client IP for rate limiting (use first IP from X-Forwarded-For to prevent spoofing)
+    const forwardedFor = request.headers.get("x-forwarded-for")
+    const ip = forwardedFor?.split(",")[0]?.trim() || 
                request.headers.get("x-real-ip") || 
                "unknown"
     
     // Check rate limiting
-    const rateLimit = checkRateLimit(ip)
+    const rateLimit = await checkRateLimit(ip)
     if (!rateLimit.allowed) {
       const minutes = Math.ceil((rateLimit.remainingTime || 0) / 60000)
       return NextResponse.json(
@@ -75,40 +25,60 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { email, password } = body
+    const { email: rawEmail, password } = body
     
-    if (!email || !password) {
+    // Validate input types
+    if (!rawEmail || !password) {
       return NextResponse.json(
         { success: false, error: "Email and password are required" },
         { status: 400 }
+      )
+    }
+
+    // Validate and sanitize email
+    const emailValidation = validateEmail(rawEmail)
+    if (!emailValidation.valid || !emailValidation.email) {
+      await recordFailedAttempt(ip)
+      return NextResponse.json(
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
+      )
+    }
+
+    const email = emailValidation.email
+
+    // Validate password is a string and not empty
+    if (typeof password !== "string" || password.length === 0) {
+      await recordFailedAttempt(ip)
+      return NextResponse.json(
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
+      )
+    }
+
+    // Prevent extremely long passwords (DoS protection)
+    if (password.length > 128) {
+      await recordFailedAttempt(ip)
+      return NextResponse.json(
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
       )
     }
     
     // Get admin credentials from Redis
     const credentials = await getAdminCredentials()
     if (!credentials) {
-      console.error("Login failed: No credentials found in Redis")
-      recordFailedAttempt(ip)
+      // Don't reveal that credentials don't exist - use generic error
+      await recordFailedAttempt(ip)
       return NextResponse.json(
-        { success: false, error: "Admin credentials not configured. Please run /api/auth/init-admin first." },
-        { status: 500 }
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
       )
     }
     
-    // Debug logging (remove in production)
-    console.log("Login attempt:", {
-      providedEmail: email,
-      storedEmail: credentials.email,
-      hasPasswordHash: !!credentials.passwordHash,
-    })
-    
-    // Verify email
-    if (email.toLowerCase() !== credentials.email.toLowerCase()) {
-      console.error("Login failed: Email mismatch", {
-        provided: email.toLowerCase(),
-        stored: credentials.email.toLowerCase(),
-      })
-      recordFailedAttempt(ip)
+    // Verify email (case-insensitive)
+    if (email !== credentials.email.toLowerCase()) {
+      await recordFailedAttempt(ip)
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
         { status: 401 }
@@ -117,18 +87,16 @@ export async function POST(request: NextRequest) {
     
     // Verify password
     if (!credentials.passwordHash) {
-      console.error("Login failed: No password hash stored")
-      recordFailedAttempt(ip)
+      await recordFailedAttempt(ip)
       return NextResponse.json(
-        { success: false, error: "Admin credentials not properly configured" },
-        { status: 500 }
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
       )
     }
     
     const isValid = await verifyPassword(password, credentials.passwordHash)
     if (!isValid) {
-      console.error("Login failed: Password mismatch")
-      recordFailedAttempt(ip)
+      await recordFailedAttempt(ip)
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
         { status: 401 }
@@ -141,8 +109,8 @@ export async function POST(request: NextRequest) {
     // Create session in Redis
     await createSession(token, credentials.email)
     
-    // Record successful login
-    recordSuccess(ip)
+    // Record successful login (clear rate limit)
+    await recordSuccess(ip)
     
     // Create response with secure cookie
     const response = NextResponse.json({
@@ -161,7 +129,20 @@ export async function POST(request: NextRequest) {
     
     return response
   } catch (error: any) {
+    // Log error server-side but don't expose details to client
     console.error("Login error:", error)
+    
+    // Try to record failed attempt if we have IP
+    try {
+      const forwardedFor = request.headers.get("x-forwarded-for")
+      const ip = forwardedFor?.split(",")[0]?.trim() || 
+                 request.headers.get("x-real-ip") || 
+                 "unknown"
+      await recordFailedAttempt(ip)
+    } catch {
+      // Ignore rate limit errors
+    }
+    
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

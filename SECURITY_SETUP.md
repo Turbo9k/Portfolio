@@ -5,12 +5,15 @@ This portfolio uses secure authentication with password hashing, JWT tokens, and
 ## 🔐 Security Features
 
 - **Password Hashing**: Uses bcrypt with 12 salt rounds
-- **JWT Tokens**: Secure token-based authentication
+- **JWT Tokens**: Secure token-based authentication (requires JWT_SECRET env var)
 - **Session Management**: Sessions stored in Redis with expiration
-- **Rate Limiting**: 5 failed login attempts = 15 minute lockout
+- **Rate Limiting**: 5 failed login attempts = 15 minute lockout (Redis-based, distributed)
 - **HTTP-Only Cookies**: Tokens stored in secure, HTTP-only cookies
 - **Protected API Routes**: All write operations require authentication
-- **Security Headers**: XSS protection, frame options, content type protection
+- **Security Headers**: XSS protection, frame options, content type protection, CSP, HSTS
+- **Input Validation**: Email and password validation with XSS prevention
+- **Strong Password Policy**: Requires uppercase, lowercase, number, and special character
+- **Information Leakage Prevention**: Generic error messages prevent account enumeration
 
 ## 🚀 Initial Setup
 
@@ -19,18 +22,27 @@ This portfolio uses secure authentication with password hashing, JWT tokens, and
 Add these to your Vercel project settings (or `.env.local` for local development):
 
 ```bash
-# JWT Secret (generate a strong random string)
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+# JWT Secret (REQUIRED - no fallback for security)
+# Generate with: openssl rand -base64 32
+JWT_SECRET=<your-strong-random-secret>
 
 # Or use NextAuth secret (if you have it)
-NEXTAUTH_SECRET=your-nextauth-secret
+NEXTAUTH_SECRET=<your-nextauth-secret>
+
+# Optional: Secret for reinitializing admin (if credentials already exist)
+INIT_ADMIN_SECRET=<strong-random-secret>
 
 # Redis credentials (already set if you added Upstash Redis)
 UPSTASH_REDIS_REST_URL=your-redis-url
 UPSTASH_REDIS_REST_TOKEN=your-redis-token
+# OR (Vercel naming)
+KV_REST_API_URL=your-redis-url
+KV_REST_API_TOKEN=your-redis-token
 ```
 
-**Important**: Generate a strong JWT_SECRET:
+**Important**: 
+- **JWT_SECRET is REQUIRED** - The system will not start without it
+- Generate a strong JWT_SECRET:
 ```bash
 # Generate a secure random string
 openssl rand -base64 32
@@ -79,7 +91,13 @@ npm run init-admin
 - Passwords are hashed using bcrypt (12 salt rounds)
 - Never stored in plain text
 - Stored securely in Redis
-- Minimum 8 characters required
+- **Strong password policy enforced:**
+  - Minimum 8 characters
+  - At least one uppercase letter
+  - At least one lowercase letter
+  - At least one number
+  - At least one special character
+  - Maximum 128 characters (DoS protection)
 
 ### Session Security
 
@@ -93,6 +111,8 @@ npm run init-admin
 - Maximum 5 failed login attempts
 - 15-minute lockout after max attempts
 - IP-based tracking (uses X-Forwarded-For header)
+- **Redis-based**: Works across multiple server instances
+- Distributed rate limiting prevents bypassing by switching servers
 
 ## 🛡️ Protected Routes
 
