@@ -100,8 +100,12 @@ export async function GET() {
         const redisData = await redis.get(KV_CONTENT_KEY) as typeof defaultContent | null
         if (redisData && typeof redisData === "object") {
           content = redisData
+          console.log("✅ Loaded content from Redis")
+        } else {
+          console.log("⚠️ Redis returned null/empty, using defaults")
         }
       } catch (redisError) {
+        console.error("❌ Redis error:", redisError)
       // KV not available, try file system (for local development)
       console.log("KV not available, trying file system...")
       try {
@@ -134,7 +138,9 @@ export async function GET() {
 
     return NextResponse.json(response, {
       headers: {
-        "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     })
   } catch (error) {

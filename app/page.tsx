@@ -90,8 +90,8 @@ export default function Portfolio() {
       ;(async () => {
         try {
           const [projectsRes, contentRes] = await Promise.all([
-            fetch("/api/projects"),
-            fetch("/api/content")
+            fetch("/api/projects", { cache: "no-store" }),
+            fetch("/api/content", { cache: "no-store" })
           ])
           const projectsData = await projectsRes.json()
           const contentData = await contentRes.json()
