@@ -13,6 +13,8 @@ interface ResumeContent {
   github: string
   website: string
   professionalSummary: string
+  resumeFileUrl?: string
+  resumeFileName?: string
   technicalSkills: {
     frontend: string
     backend: string
@@ -212,6 +214,42 @@ export function ResumeEditor({ content, onSave, onCancel }: ResumeEditorProps) {
               </div>
             </div>
 
+            <div className="border-t border-white/10 pt-6">
+              <label className="block text-sm font-medium text-gray-300 mb-4">Resume PDF File</label>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-2">Resume File URL</label>
+                  <input
+                    type="url"
+                    value={formData.resumeFileUrl || ""}
+                    onChange={(e) => handleChange("resumeFileUrl", e.target.value)}
+                    placeholder="https://example.com/resume.pdf or /resume.pdf"
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Enter the URL to your resume PDF file. Can be a full URL (https://...) or a relative path (/resume.pdf).
+                    If left empty, defaults to /Ian_Siats_Resume.pdf
+                    <br />
+                    <span className="text-yellow-400">Note:</span> For Vercel deployments, upload your PDF to a cloud storage service
+                    (like Vercel Blob, Cloudinary, or AWS S3) and use that URL here.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-2">Download File Name (optional)</label>
+                  <input
+                    type="text"
+                    value={formData.resumeFileName || ""}
+                    onChange={(e) => handleChange("resumeFileName", e.target.value)}
+                    placeholder="Ian_Siats_Resume.pdf"
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    The filename that will be used when users download the resume. If left empty, will use the filename from the URL.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
@@ -229,5 +267,6 @@ export function ResumeEditor({ content, onSave, onCancel }: ResumeEditorProps) {
     </div>
   )
 }
+
 
 

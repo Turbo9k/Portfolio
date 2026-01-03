@@ -840,6 +840,21 @@ export default function AdminDashboard() {
                     <p className="text-gray-300 text-sm mb-1">
                       <span className="text-gray-400">Email:</span> {content.resume.email}
                     </p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Resume File:</span>{" "}
+                      {content.resume.resumeFileUrl ? (
+                        <a
+                          href={content.resume.resumeFileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:underline"
+                        >
+                          {content.resume.resumeFileName || content.resume.resumeFileUrl}
+                        </a>
+                      ) : (
+                        <span className="text-gray-500">Not set (using default)</span>
+                      )}
+                    </p>
                   </div>
                 )}
               </CardContent>

@@ -26,10 +26,14 @@ export default function ResumePage() {
     loadContent()
   }, [])
   const handleDownload = () => {
+    // Get resume file URL from content, or use default
+    const resumeUrl = resumeContent?.resumeFileUrl || '/Ian_Siats_Resume.pdf'
+    const fileName = resumeContent?.resumeFileName || resumeUrl.split('/').pop() || 'Ian_Siats_Resume.pdf'
+    
     // Download the PDF file
     const link = document.createElement('a')
-    link.href = '/Ian_Siats_Resume.pdf'
-    link.download = 'Ian_Siats_Resume.pdf'
+    link.href = resumeUrl
+    link.download = fileName
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
