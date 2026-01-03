@@ -29,6 +29,8 @@
     "github": "github.com/Turbo9k",
     "website": "iansiats.vercel.app",
     "professionalSummary": "Self-taught Full-Stack Web Developer seeking an entry-level position to launch my professional career. Through intensive self-directed learning, I have developed strong proficiency in modern web development technologies including React, Next.js, TypeScript, and full-stack JavaScript development. My portfolio demonstrates hands-on experience building production-ready applications with complex features such as payment processing, authentication systems, and responsive user interfaces. Highly motivated, detail-oriented, and committed to writing clean, maintainable code that follows industry best practices.",
+    "resumeFileUrl": "/Ian_Siats_Resume_Updated.pdf",
+    "resumeFileName": "Ian_Siats_Resume_Updated.pdf",
     "technicalSkills": {
       "frontend": "React • Next.js • TypeScript • JavaScript (ES6) • HTML5 • CSS3 • Tailwind CSS • Responsive Web Design • UI/UX",
       "backend": "Node.js • Express.js • Python • REST APIs • PostgreSQL • MongoDB • JWT Auth • CRUD • MVC Architecture • API Integration",
