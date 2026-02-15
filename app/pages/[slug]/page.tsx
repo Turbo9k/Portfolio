@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation"
 import type { CustomPage } from "@/lib/types"
 
+// Next.js 15 requires params to be a Promise
+
 const KV_KEY = "portfolio:pages"
 
 // Try to import Upstash Redis
