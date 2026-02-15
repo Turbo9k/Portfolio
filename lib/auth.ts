@@ -149,9 +149,9 @@ export async function deleteSession(userId: string): Promise<boolean> {
 }
 
 // Initialize default admin credentials if none exist
-export async function initializeAdminCredentials(): Promise<void> {
+export async function initializeAdminCredentials(force: boolean = false): Promise<void> {
   const existing = await getAdminCredentials()
-  if (existing) return
+  if (existing && !force) return
   
   // Create default admin with hashed password
   const defaultEmail = "admin@portfolio.com"
@@ -159,7 +159,7 @@ export async function initializeAdminCredentials(): Promise<void> {
   const passwordHash = await hashPassword(defaultPassword)
   
   await saveAdminCredentials(defaultEmail, passwordHash)
-  console.log("Default admin credentials initialized")
+  console.log(force ? "Admin credentials reset successfully" : "Default admin credentials initialized")
   console.log(`Email: ${defaultEmail}`)
   console.log(`Password: ${defaultPassword}`)
   console.log("⚠️  IMPORTANT: Change these credentials immediately!")

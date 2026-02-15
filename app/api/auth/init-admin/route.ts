@@ -53,7 +53,7 @@ export async function GET() {
       )
     }
 
-    await initializeAdminCredentials()
+    await initializeAdminCredentials(false)
     
     return NextResponse.json({
       success: true,
@@ -87,11 +87,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await initializeAdminCredentials()
+    const isReset = !!await getAdminCredentials()
+    await initializeAdminCredentials(true) // Force reset if credentials exist
     
     return NextResponse.json({
       success: true,
-      message: "Admin credentials initialized successfully",
+      message: isReset ? "Admin credentials reset successfully" : "Admin credentials initialized successfully",
       defaultEmail: "admin@portfolio.com",
       defaultPassword: "ChangeThisPassword123!",
       warning: "⚠️ IMPORTANT: Change these credentials immediately after first login!",

@@ -36,6 +36,8 @@ import { AboutEditor } from "@/components/admin/about-editor"
 import { ResumeEditor } from "@/components/admin/resume-editor"
 import { SettingsEditor } from "@/components/admin/settings-editor"
 import { AdminCredentialsEditor } from "@/components/admin/admin-credentials-editor"
+import { PagesEditor } from "@/components/admin/pages-editor"
+import type { CustomPage } from "@/lib/types"
 
 interface Project {
   id: string
@@ -70,6 +72,8 @@ export default function AdminDashboard() {
   const [showResumeEditor, setShowResumeEditor] = useState(false)
   const [showSettingsEditor, setShowSettingsEditor] = useState(false)
   const [showAdminCredentialsEditor, setShowAdminCredentialsEditor] = useState(false)
+  const [pages, setPages] = useState<CustomPage[]>([])
+  const [showPagesEditor, setShowPagesEditor] = useState(false)
   const [adminCredentials, setAdminCredentials] = useState({ email: "ian", password: "portfolio2024" })
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -95,6 +99,7 @@ export default function AdminDashboard() {
         setIsAuthenticated(true)
         loadProjects()
         loadContent()
+        loadPages()
         
         // Load admin email from verified auth
         if (data.user?.email) {
@@ -153,6 +158,43 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Failed to load content:", error)
       showMessage("error", "Failed to load content")
+    }
+  }
+
+  const loadPages = async () => {
+    try {
+      const response = await fetch("/api/pages", { cache: "no-store" })
+      if (!response.ok) throw new Error("Failed to fetch pages")
+      const data = await response.json()
+      setPages(data.data?.pages || data.pages || [])
+    } catch (error) {
+      console.error("Failed to load pages:", error)
+      showMessage("error", "Failed to load pages")
+    }
+  }
+
+  const savePages = async (updatedPages: CustomPage[]) => {
+    try {
+      const response = await fetch("/api/pages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pages: updatedPages }),
+        credentials: "include",
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save pages")
+      }
+      
+      showMessage("success", data.message || "Pages saved successfully!")
+      setPages(updatedPages)
+      return true
+    } catch (error: any) {
+      console.error("Failed to save pages:", error)
+      showMessage("error", error.message || "Failed to save pages")
+      return false
     }
   }
 
@@ -452,7 +494,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="projects" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-white/5 border border-white/10 mb-8">
+          <TabsList className="grid w-full grid-cols-7 bg-white/5 border border-white/10 mb-8">
             <TabsTrigger value="projects" className="data-[state=active]:bg-white/10">
               <Github className="w-4 h-4 mr-2" />
               Projects
@@ -472,6 +514,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="settings" className="data-[state=active]:bg-white/10">
               <Settings className="w-4 h-4 mr-2" />
               Settings
+            </TabsTrigger>
+            <TabsTrigger value="pages" className="data-[state=active]:bg-white/10">
+              <FileText className="w-4 h-4 mr-2" />
+              Pages
             </TabsTrigger>
             <TabsTrigger value="admin" className="data-[state=active]:bg-white/10">
               <Lock className="w-4 h-4 mr-2" />
@@ -891,6 +937,105 @@ export default function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Pages Tab */}
+          <TabsContent value="pages">
+            {showPagesEditor ? (
+              <PagesEditor
+                pages={pages}
+                onSave={savePages}
+                onClose={() => setShowPagesEditor(false)}
+              />
+            ) : (
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Custom Pages</CardTitle>
+                    <Button
+                      onClick={() => setShowPagesEditor(true)}
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Manage Pages
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <Card className="bg-white/5 border-white/10">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-white mb-1">{pages.length}</div>
+                            <div className="text-gray-400 text-sm">Total Pages</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-white/5 border-white/10">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-400 mb-1">
+                              {pages.filter((p) => p.published).length}
+                            </div>
+                            <div className="text-gray-400 text-sm">Published</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-white/5 border-white/10">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-yellow-400 mb-1">
+                              {pages.filter((p) => !p.published).length}
+                            </div>
+                            <div className="text-gray-400 text-sm">Drafts</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    {pages.length === 0 ? (
+                      <div className="text-center py-12">
+                        <p className="text-gray-400 mb-4">No custom pages yet.</p>
+                        <Button
+                          onClick={() => setShowPagesEditor(true)}
+                          className="bg-blue-500 hover:bg-blue-600"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Your First Page
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {pages.map((page) => (
+                          <Card key={page.id} className="bg-white/5 border-white/10">
+                            <CardHeader>
+                              <CardTitle className="text-white text-lg">{page.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <Badge variant={page.published ? "default" : "secondary"}>
+                                  {page.published ? "Published" : "Draft"}
+                                </Badge>
+                                <p className="text-sm text-gray-400">/{page.slug}</p>
+                                <a
+                                  href={`/pages/${page.slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  View Page
+                                </a>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Admin Credentials Tab */}

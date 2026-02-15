@@ -99,3 +99,16 @@ export type ColorOption = "blue" | "purple" | "green" | "red" | "yellow" | "pink
 
 // Status filter type
 export type StatusFilter = "All" | "Live" | "In Development" | "Planning" | "Archived"
+
+// Custom page types
+export interface CustomPage {
+  id: string
+  title: string
+  slug: string
+  content: string
+  published: boolean
+  createdAt: string
+  updatedAt: string
+  metaDescription?: string
+  metaKeywords?: string
+}
