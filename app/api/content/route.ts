@@ -100,9 +100,10 @@ export async function GET() {
     // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        const redisData = await redis.get(KV_CONTENT_KEY) as typeof defaultContent | null
+        const redisData = await redis.get(KV_CONTENT_KEY) as typeof defaultContent & { pages?: unknown[] } | null
         if (redisData && typeof redisData === "object") {
           content = redisData
+          if (!Array.isArray((content as any).pages)) (content as any).pages = []
           console.log("✅ Loaded content from Redis")
         } else {
           console.log("⚠️ Redis returned null/empty, using defaults")
@@ -180,7 +181,13 @@ export async function POST(request: NextRequest) {
     // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        await redis.set(KV_CONTENT_KEY, content)
+        // Preserve existing pages when saving content (pages are managed in Pages tab)
+        const existing = (await redis.get(KV_CONTENT_KEY)) as Record<string, unknown> | null
+        const toSave = existing && typeof existing === "object" ? { ...existing, ...content } : content
+        if (Array.isArray(existing?.pages) && (content as any).pages === undefined) {
+          toSave.pages = existing.pages
+        }
+        await redis.set(KV_CONTENT_KEY, toSave)
         // Also try to sync to file system for backup (if possible)
         try {
           await ensureDataDirectory()

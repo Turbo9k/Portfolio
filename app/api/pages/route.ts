@@ -2,69 +2,50 @@ import { NextRequest, NextResponse } from "next/server"
 import type { CustomPage, ApiResponse } from "@/lib/types"
 import { requireAuth } from "@/lib/middleware"
 
-const KV_KEY = "portfolio:pages"
+// Use same Redis key as content so pages persist (portfolio:content already works)
+const KV_CONTENT_KEY = "portfolio:content"
 
-// Try to import Upstash Redis, but it's optional
 let redis: any = null
 try {
   const { Redis } = require("@upstash/redis")
-  // Support both naming conventions (Vercel uses KV_REST_API_URL/TOKEN)
   const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
   const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
   if (redisUrl && redisToken) {
-    redis = new Redis({
-      url: redisUrl,
-      token: redisToken,
-    })
+    redis = new Redis({ url: redisUrl, token: redisToken })
   }
 } catch {
   // Redis not available
 }
 
-// Default pages data (empty array)
-const defaultPages: CustomPage[] = []
-
 export async function GET() {
   try {
-    let pages: CustomPage[] = defaultPages
+    let pages: CustomPage[] = []
 
-    // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        const redisData = (await redis.get(KV_KEY)) as CustomPage[] | null
-        if (redisData && Array.isArray(redisData)) {
-          pages = redisData
-          console.log("✅ Loaded pages from Redis:", pages.length)
-        } else {
-          // Key missing or invalid: ensure key exists so POST can write later
-          await redis.set(KV_KEY, defaultPages)
-          pages = defaultPages
-          console.log("⚠️ Redis pages key missing or invalid, initialized to []")
+        const content = (await redis.get(KV_CONTENT_KEY)) as { pages?: CustomPage[] } | null
+        if (content && typeof content === "object" && Array.isArray(content.pages)) {
+          pages = content.pages
         }
+        console.log("✅ Loaded pages from Redis (content.pages):", pages.length)
       } catch (redisError) {
         console.error("❌ Redis error:", redisError)
       }
     }
 
-    const response: ApiResponse<{ pages: CustomPage[] }> = {
-      success: true,
-      data: { pages },
-    }
-
-    return NextResponse.json(response, {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
-      },
-    })
+    return NextResponse.json(
+      { success: true, data: { pages } },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    )
   } catch (error) {
     console.error("Error reading pages:", error)
-    const response: ApiResponse = {
-      success: false,
-      error: "Failed to read pages",
-    }
-    return NextResponse.json(response, { status: 500 })
+    return NextResponse.json({ success: false, error: "Failed to read pages" }, { status: 500 })
   }
 }
 
@@ -118,32 +99,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Try Upstash Redis first (for production)
-    if (redis) {
-      try {
-        await redis.set(KV_KEY, pages)
-        console.log("✅ Saved pages to Redis:", pages.length)
-      } catch (redisError) {
-        console.error("❌ Redis error:", redisError)
-        const response: ApiResponse = {
-          success: false,
-          error: "Failed to save pages to Redis",
-        }
-        return NextResponse.json(response, { status: 500 })
-      }
-    } else {
-      const response: ApiResponse = {
-        success: false,
-        error: "Redis is not configured. Please set up Upstash Redis through Vercel Marketplace.",
-      }
-      return NextResponse.json(response, { status: 500 })
+    if (!redis) {
+      return NextResponse.json(
+        { success: false, error: "Redis is not configured." },
+        { status: 500 }
+      )
     }
 
-    const response: ApiResponse = {
-      success: true,
-      message: "Pages saved successfully",
+    try {
+      const content = (await redis.get(KV_CONTENT_KEY)) as Record<string, unknown> | null
+      const next = content && typeof content === "object" ? { ...content } : {}
+      next.pages = pages
+      await redis.set(KV_CONTENT_KEY, next)
+      console.log("✅ Saved pages to Redis (content.pages):", pages.length)
+    } catch (redisError) {
+      console.error("❌ Redis error:", redisError)
+      return NextResponse.json(
+        { success: false, error: "Failed to save pages to Redis" },
+        { status: 500 }
+      )
     }
-    return NextResponse.json(response)
+
+    return NextResponse.json({ success: true, message: "Pages saved successfully" })
   } catch (error) {
     console.error("Error saving pages:", error)
     const response: ApiResponse = {
