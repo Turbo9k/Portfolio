@@ -948,93 +948,138 @@ export default function AdminDashboard() {
                 onClose={() => setShowPagesEditor(false)}
               />
             ) : (
-              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white">Custom Pages</CardTitle>
-                    <Button
-                      onClick={() => setShowPagesEditor(true)}
-                      className="bg-blue-500 hover:bg-blue-600"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Manage Pages
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      <Card className="bg-white/5 border-white/10">
-                        <CardContent className="p-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-white mb-1">{pages.length}</div>
-                            <div className="text-gray-400 text-sm">Total Pages</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card className="bg-white/5 border-white/10">
-                        <CardContent className="p-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-green-400 mb-1">
-                              {pages.filter((p) => p.published).length}
+              <div className="space-y-6">
+                {/* Built-in / site pages */}
+                <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-white">All site pages</CardTitle>
+                    <p className="text-gray-400 text-sm">Built-in routes and custom pages.</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[
+                        { title: "Home", path: "/", description: "Landing page" },
+                        { title: "Projects", path: "/projects", description: "All projects" },
+                        { title: "Resume", path: "/resume", description: "Resume / CV" },
+                      ].map((sitePage) => (
+                        <Card key={sitePage.path} className="bg-white/5 border-white/10">
+                          <CardHeader>
+                            <CardTitle className="text-white text-lg">{sitePage.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <Badge variant="outline" className="border-white/20 text-gray-300">
+                                Built-in
+                              </Badge>
+                              <p className="text-sm text-gray-400">{sitePage.path}</p>
+                              <p className="text-xs text-gray-500">{sitePage.description}</p>
+                              <a
+                                href={sitePage.path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                View Page
+                              </a>
                             </div>
-                            <div className="text-gray-400 text-sm">Published</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card className="bg-white/5 border-white/10">
-                        <CardContent className="p-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-yellow-400 mb-1">
-                              {pages.filter((p) => !p.published).length}
+                          </CardContent>
+                        </Card>
+                      ))}
+                      {pages.map((page) => (
+                        <Card key={page.id} className="bg-white/5 border-white/10">
+                          <CardHeader>
+                            <CardTitle className="text-white text-lg">{page.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <Badge variant={page.published ? "default" : "secondary"}>
+                                {page.published ? "Published" : "Draft"}
+                              </Badge>
+                              <p className="text-sm text-gray-400">/pages/{page.slug}</p>
+                              <a
+                                href={`/pages/${page.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                View Page
+                              </a>
                             </div>
-                            <div className="text-gray-400 text-sm">Drafts</div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                    {pages.length === 0 ? (
-                      <div className="text-center py-12">
-                        <p className="text-gray-400 mb-4">No custom pages yet.</p>
-                        <Button
-                          onClick={() => setShowPagesEditor(true)}
-                          className="bg-blue-500 hover:bg-blue-600"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Your First Page
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {pages.map((page) => (
-                          <Card key={page.id} className="bg-white/5 border-white/10">
-                            <CardHeader>
-                              <CardTitle className="text-white text-lg">{page.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-2">
-                                <Badge variant={page.published ? "default" : "secondary"}>
-                                  {page.published ? "Published" : "Draft"}
-                                </Badge>
-                                <p className="text-sm text-gray-400">/{page.slug}</p>
-                                <a
-                                  href={`/pages/${page.slug}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  View Page
-                                </a>
+                  </CardContent>
+                </Card>
+
+                {/* Custom pages management */}
+                <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-white">Custom pages</CardTitle>
+                      <Button
+                        onClick={() => setShowPagesEditor(true)}
+                        className="bg-blue-500 hover:bg-blue-600"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Manage Pages
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <Card className="bg-white/5 border-white/10">
+                          <CardContent className="p-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-white mb-1">{pages.length}</div>
+                              <div className="text-gray-400 text-sm">Total custom</div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card className="bg-white/5 border-white/10">
+                          <CardContent className="p-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-green-400 mb-1">
+                                {pages.filter((p) => p.published).length}
                               </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              <div className="text-gray-400 text-sm">Published</div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card className="bg-white/5 border-white/10">
+                          <CardContent className="p-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-yellow-400 mb-1">
+                                {pages.filter((p) => !p.published).length}
+                              </div>
+                              <div className="text-gray-400 text-sm">Drafts</div>
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      {pages.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-gray-400 mb-4">No custom pages yet.</p>
+                          <Button
+                            onClick={() => setShowPagesEditor(true)}
+                            className="bg-blue-500 hover:bg-blue-600"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create your first page
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-gray-400 text-sm">
+                          Custom pages listed above in &quot;All site pages&quot;. Use Manage Pages to add, edit, or delete.
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </TabsContent>
 

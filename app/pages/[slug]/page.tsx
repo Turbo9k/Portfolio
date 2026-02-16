@@ -2,7 +2,8 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { CustomPage } from "@/lib/types"
 
-// Next.js 15 requires params to be a Promise
+// Always run at request time so we read from Redis/API, not build-time empty data
+export const dynamic = "force-dynamic"
 
 const KV_KEY = "portfolio:pages"
 
@@ -22,33 +23,50 @@ try {
   // Redis not available
 }
 
-async function getPage(slug: string): Promise<CustomPage | null> {
-  try {
-    let pages: CustomPage[] = []
-    
-    if (redis) {
-      const redisData = await redis.get(KV_KEY) as CustomPage[] | null
+async function getPages(): Promise<CustomPage[]> {
+  let pages: CustomPage[] = []
+
+  if (redis) {
+    try {
+      const redisData = (await redis.get(KV_KEY)) as CustomPage[] | null
       if (redisData && Array.isArray(redisData)) {
         pages = redisData
       }
-    } else {
-      // Fallback to API if Redis not available
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}` 
-        : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      
-      const response = await fetch(`${baseUrl}/api/pages`, {
-        cache: "no-store",
-      })
-      
+    } catch (e) {
+      console.error("Redis get error:", e)
+    }
+  }
+
+  // If Redis empty or unavailable, try public API (e.g. different instance or env)
+  if (pages.length === 0) {
+    try {
+      const baseUrl =
+        process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      const response = await fetch(`${baseUrl}/api/pages`, { cache: "no-store" })
       if (response.ok) {
         const data = await response.json()
         pages = data.data?.pages || data.pages || []
       }
+    } catch (e) {
+      console.error("API pages fallback error:", e)
     }
-    
+  }
+
+  return pages
+}
+
+async function getPage(slug: string): Promise<CustomPage | null> {
+  try {
+    const pages = await getPages()
     const normalizedSlug = slug.trim().toLowerCase()
-    return pages.find((p) => (p.slug || "").trim().toLowerCase() === normalizedSlug && p.published) || null
+    return (
+      pages.find(
+        (p) =>
+          (p.slug || "").trim().toLowerCase() === normalizedSlug && p.published
+      ) || null
+    )
   } catch (error) {
     console.error("Error fetching page:", error)
     return null

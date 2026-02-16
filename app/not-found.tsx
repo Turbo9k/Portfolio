@@ -39,6 +39,14 @@ export default function NotFound() {
               >
                 The page you're looking for doesn't exist or has been moved.
               </motion.p>
+              <motion.p
+                className="text-gray-400 mb-6 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.65 }}
+              >
+                For custom pages (e.g. /pages/...), create and publish them in Admin → Pages.
+              </motion.p>
 
               <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -64,6 +72,16 @@ export default function NotFound() {
                   </Link>
                 </Button>
               </motion.div>
+              <motion.p
+                className="mt-6 text-gray-500 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                <Link href="/admin/dashboard" className="hover:text-gray-400 underline">
+                  Admin dashboard
+                </Link>
+              </motion.p>
             </CardContent>
           </Card>
         </motion.div>
