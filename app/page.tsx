@@ -45,7 +45,9 @@ export default function Portfolio() {
   const [isMobile, setIsMobile] = useState(false)
   const [projectsVisible, setProjectsVisible] = useState(false)
   const [aboutVisible, setAboutVisible] = useState(false)
-  const [contactVisible, setContactVisible] = useState(false)
+  const [contactVisible, setContactVisible] = useState(
+    () => typeof window !== "undefined" && window.location.hash === "#contact"
+  )
   const [navPages, setNavPages] = useState<{ href: string; label: string }[]>([])
   const projectsRef = (typeof document !== "undefined" ? (document.getElementById("projects-section") as HTMLElement | null) : null)
   const { scrollYProgress } = useScroll()

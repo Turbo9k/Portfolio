@@ -172,24 +172,45 @@ export default function CustomPageRoute() {
               </section>
             )}
 
-            {/* Advanced features – contrast section */}
-            {(page.advanced_features ?? "") !== "" && (
-              <section className="bg-white/5 border-y border-white/10 py-20">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6">
-                  <h2 className="text-3xl font-bold text-white text-center mb-4">
-                    Advanced features
-                  </h2>
-                  <p className="text-gray-400 text-center max-w-xl mx-auto mb-10">
-                    The details that matter
-                  </p>
-                  <div className={proseClass}>
-                    <p className="text-gray-300 whitespace-pre-wrap text-center sm:text-left">
-                      {page.advanced_features}
+            {/* Advanced features – card grid */}
+            {(page.advanced_features ?? "") !== "" && (() => {
+              const raw = page.advanced_features!.trim()
+              const blocks = raw.split(/\n\n+/).filter(Boolean).map((block) => {
+                const lines = block.split("\n").map((l) => l.trim()).filter(Boolean)
+                const title = lines[0] ?? ""
+                const description = lines.slice(1).join(" ").trim()
+                return { title, description }
+              })
+              return (
+                <section className="bg-white/5 border-y border-white/10 py-20">
+                  <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                    <h2 className="text-3xl font-bold text-white text-center mb-4">
+                      Advanced features
+                    </h2>
+                    <p className="text-gray-400 text-center max-w-xl mx-auto mb-12">
+                      The details that matter
                     </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {blocks.map((item, i) => (
+                        <div
+                          key={i}
+                          className="rounded-xl bg-white/5 border border-white/10 p-5 shadow-md transition-all duration-200 hover:bg-white/10 hover:shadow-lg hover:-translate-y-0.5"
+                        >
+                          <h3 className="text-lg font-semibold text-white mb-2">
+                            {item.title}
+                          </h3>
+                          {item.description ? (
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                              {item.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
+                </section>
+              )
+            })()}
 
             {/* CTA – distinct section with strong button */}
             {(page.cta_text ?? "") !== "" && (

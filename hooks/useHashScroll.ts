@@ -3,15 +3,15 @@
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 
-const SCROLL_DELAY_MS = 150
-const MAX_RETRIES = 8
-const RETRY_INTERVAL_MS = 80
+const INITIAL_DELAY_MS = 350
+const MAX_RETRIES = 20
+const RETRY_INTERVAL_MS = 100
 
 /**
- * Scrolls the element matching the current hash into view after route transition.
- * Handles client-side navigation (App Router): when pathname or hash changes,
- * waits for the DOM to be ready then smooth-scrolls to the target element.
- * Prevents double-scroll by tracking the last scrolled hash.
+ * Scrolls the element matching the current hash into view after route transition
+ * or on first load. Handles client-side navigation (App Router) and hydration:
+ * waits for the DOM (and any gated sections like #contact) to be mounted,
+ * then smooth-scrolls. Prevents double-scroll by tracking the last scrolled key.
  */
 export function useHashScroll() {
   const pathname = usePathname()
@@ -26,30 +26,36 @@ export function useHashScroll() {
 
     const id = hash.slice(1)
     const scrollKey = `${pathname ?? ""}${hash}`
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+    function doScroll(el: HTMLElement) {
+      const alreadyScrolled = lastScrolledRef.current === scrollKey
+      if (!alreadyScrolled) {
+        lastScrolledRef.current = scrollKey
+        el.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }
 
     function tryScroll(retries = 0) {
       const el = document.getElementById(id)
       if (el) {
-        const alreadyScrolled = lastScrolledRef.current === scrollKey
-        if (!alreadyScrolled) {
-          lastScrolledRef.current = scrollKey
-          el.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          })
-        }
+        doScroll(el)
         return
       }
       if (retries < MAX_RETRIES) {
-        setTimeout(() => tryScroll(retries + 1), RETRY_INTERVAL_MS)
+        timeoutId = setTimeout(() => tryScroll(retries + 1), RETRY_INTERVAL_MS)
       }
     }
 
-    const t = setTimeout(() => tryScroll(), SCROLL_DELAY_MS)
-    return () => clearTimeout(t)
+    timeoutId = setTimeout(() => {
+      requestAnimationFrame(() => tryScroll())
+    }, INITIAL_DELAY_MS)
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
   }, [pathname])
 
-  // Also run when hash changes without pathname change (e.g. in-page link)
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash
