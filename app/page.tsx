@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -93,6 +94,20 @@ export default function Portfolio() {
     }
     return undefined
   }, [])
+
+  const pathname = usePathname()
+  // Mount contact section when URL is /#contact (cross-page nav or in-page hash change) so useHashScroll can scroll to it
+  useEffect(() => {
+    if (pathname !== "/") return
+    if (typeof window !== "undefined" && window.location.hash === "#contact") {
+      setContactVisible(true)
+    }
+    const onHashChange = () => {
+      if (window.location.hash === "#contact") setContactVisible(true)
+    }
+    window.addEventListener("hashchange", onHashChange)
+    return () => window.removeEventListener("hashchange", onHashChange)
+  }, [pathname])
 
   useEffect(() => {
     const load = () => {

@@ -5,6 +5,7 @@ import "./globals.css"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { HashScrollHandler } from "@/components/hash-scroll-handler"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -72,6 +73,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={inter.className}>
+        <HashScrollHandler />
         <Suspense fallback={<div>Loading...</div>}>
           <div id="root">{children}</div>
         </Suspense>
