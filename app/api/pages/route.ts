@@ -31,12 +31,15 @@ export async function GET() {
     // Try Upstash Redis first (for production)
     if (redis) {
       try {
-        const redisData = await redis.get(KV_KEY) as CustomPage[] | null
+        const redisData = (await redis.get(KV_KEY)) as CustomPage[] | null
         if (redisData && Array.isArray(redisData)) {
           pages = redisData
           console.log("✅ Loaded pages from Redis:", pages.length)
         } else {
-          console.log("⚠️ Redis returned null/empty, using defaults")
+          // Key missing or invalid: ensure key exists so POST can write later
+          await redis.set(KV_KEY, defaultPages)
+          pages = defaultPages
+          console.log("⚠️ Redis pages key missing or invalid, initialized to []")
         }
       } catch (redisError) {
         console.error("❌ Redis error:", redisError)
@@ -84,14 +87,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    // Validate pages structure
-    for (const page of pages) {
-      if (!page.id || !page.title || !page.slug || !page.content) {
+    // Validate pages structure (lenient: allow optional fields to be missing)
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i]
+      const id = page?.id ?? ""
+      const title = page?.title ?? ""
+      const slug = (page?.slug ?? "").trim().toLowerCase()
+      const content = page?.content ?? ""
+      if (!id || !title || !slug) {
         const response: ApiResponse = {
           success: false,
-          error: "Invalid page structure. Each page must have id, title, slug, and content.",
+          error: `Invalid page at index ${i}: each page must have id, title, and slug.`,
         }
         return NextResponse.json(response, { status: 400 })
+      }
+      // Normalize so stored data is consistent
+      pages[i] = {
+        id,
+        title,
+        slug,
+        content: typeof content === "string" ? content : "",
+        published: Boolean(page?.published),
+        createdAt: page?.createdAt ?? new Date().toISOString(),
+        updatedAt: page?.updatedAt ?? new Date().toISOString(),
+        metaDescription: page?.metaDescription,
+        metaKeywords: page?.metaKeywords,
+        showInNav: page?.showInNav,
+        navLabel: page?.navLabel,
+        showContactForm: page?.showContactForm,
       }
     }
 

@@ -9,7 +9,7 @@ import type { CustomPage } from "@/lib/types"
 
 interface PagesEditorProps {
   pages: CustomPage[]
-  onSave: (pages: CustomPage[]) => void
+  onSave: (pages: CustomPage[]) => void | Promise<boolean>
   onClose: () => void
 }
 
@@ -86,9 +86,15 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
     setEditingPage(null)
   }
 
-  const handleSaveAll = () => {
-    onSave(pages)
-    onClose()
+  const [saving, setSaving] = useState(false)
+  const handleSaveAll = async () => {
+    setSaving(true)
+    try {
+      const result = await Promise.resolve(onSave(pages))
+      if (result !== false) onClose()
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -100,9 +106,9 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
             <Plus className="w-4 h-4 mr-2" />
             Add Page
           </Button>
-          <Button onClick={handleSaveAll} className="bg-green-500 hover:bg-green-600">
+          <Button onClick={handleSaveAll} className="bg-green-500 hover:bg-green-600" disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
-            Save All
+            {saving ? "Saving..." : "Save All"}
           </Button>
           <Button variant="outline" onClick={onClose} className="border-white/20">
             <X className="w-4 h-4 mr-2" />
