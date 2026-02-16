@@ -35,23 +35,23 @@ async function getPages(): Promise<CustomPage[]> {
     } catch (e) {
       console.error("Redis get error:", e)
     }
+    return pages
   }
 
-  // If Redis empty or unavailable, try public API (e.g. different instance or env)
-  if (pages.length === 0) {
-    try {
-      const baseUrl =
-        process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      const response = await fetch(`${baseUrl}/api/pages`, { cache: "no-store" })
-      if (response.ok) {
-        const data = await response.json()
-        pages = data.data?.pages || data.pages || []
-      }
-    } catch (e) {
-      console.error("API pages fallback error:", e)
+  // Only when Redis is not configured: try public API (e.g. local dev).
+  // Do not fetch when Redis exists but is empty — self-fetch can 401 on Vercel
+  // (preview deployment protection), and Redis is the single source of truth.
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+    const response = await fetch(`${baseUrl}/api/pages`, { cache: "no-store" })
+    if (response.ok) {
+      const data = await response.json()
+      pages = data.data?.pages || data.pages || []
     }
+  } catch (e) {
+    console.error("API pages fallback error:", e)
   }
 
   return pages
