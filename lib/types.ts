@@ -100,21 +100,31 @@ export type ColorOption = "blue" | "purple" | "green" | "red" | "yellow" | "pink
 // Status filter type
 export type StatusFilter = "All" | "Live" | "In Development" | "Planning" | "Archived"
 
-// Custom page types
+// Custom page – structured sections (replaces single markdown content)
+export interface PageService {
+  title: string
+  bullets: string[]
+}
+
 export interface CustomPage {
   id: string
   title: string
   slug: string
-  content: string
+  /** @deprecated Use structured fields; kept for backward compatibility when reading old pages */
+  content?: string
   published: boolean
   createdAt: string
   updatedAt: string
   metaDescription?: string
   metaKeywords?: string
-  /** Show this page in the main site navigation */
   showInNav?: boolean
-  /** Label for nav link (defaults to title) */
   navLabel?: string
-  /** Show a "Contact me" section at the bottom of the page */
   showContactForm?: boolean
+  // Structured sections
+  hero_title?: string
+  hero_description?: string
+  services?: PageService[]
+  pricing_text?: string
+  advanced_features?: string
+  cta_text?: string
 }

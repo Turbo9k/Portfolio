@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import type { CustomPage, ApiResponse } from "@/lib/types"
+import type { CustomPage, ApiResponse, PageService } from "@/lib/types"
 import { requireAuth } from "@/lib/middleware"
 
 // Use same Redis key as content so pages persist (portfolio:content already works)
@@ -68,26 +68,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    // Validate pages structure (lenient: allow optional fields to be missing)
+    function normalizeService(s: unknown): PageService {
+      if (s && typeof s === "object" && "title" in s) {
+        const bullets = Array.isArray((s as PageService).bullets)
+          ? (s as PageService).bullets.filter((b) => typeof b === "string")
+          : []
+        return { title: String((s as PageService).title ?? ""), bullets }
+      }
+      return { title: "", bullets: [] }
+    }
+
     for (let i = 0; i < pages.length; i++) {
       const page = pages[i]
       const id = page?.id ?? ""
       const title = page?.title ?? ""
       const slug = (page?.slug ?? "").trim().toLowerCase()
-      const content = page?.content ?? ""
       if (!id || !title || !slug) {
-        const response: ApiResponse = {
-          success: false,
-          error: `Invalid page at index ${i}: each page must have id, title, and slug.`,
-        }
-        return NextResponse.json(response, { status: 400 })
+        return NextResponse.json(
+          { success: false, error: `Invalid page at index ${i}: each page must have id, title, and slug.` },
+          { status: 400 }
+        )
       }
-      // Normalize so stored data is consistent
+      const rawServices = page?.services
+      const services = Array.isArray(rawServices)
+        ? rawServices.map(normalizeService)
+        : []
+
       pages[i] = {
         id,
         title,
         slug,
-        content: typeof content === "string" ? content : "",
+        content: typeof page?.content === "string" ? page.content : undefined,
         published: Boolean(page?.published),
         createdAt: page?.createdAt ?? new Date().toISOString(),
         updatedAt: page?.updatedAt ?? new Date().toISOString(),
@@ -96,6 +107,12 @@ export async function POST(request: NextRequest) {
         showInNav: page?.showInNav,
         navLabel: page?.navLabel,
         showContactForm: page?.showContactForm,
+        hero_title: typeof page?.hero_title === "string" ? page.hero_title : "",
+        hero_description: typeof page?.hero_description === "string" ? page.hero_description : "",
+        services,
+        pricing_text: typeof page?.pricing_text === "string" ? page.pricing_text : "",
+        advanced_features: typeof page?.advanced_features === "string" ? page.advanced_features : "",
+        cta_text: typeof page?.cta_text === "string" ? page.cta_text : "",
       }
     }
 

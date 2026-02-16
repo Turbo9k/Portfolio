@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Plus, Edit, Trash2, ExternalLink, Save, X, FileText, PenLine, Search, Settings } from "lucide-react"
+import { Plus, Edit, Trash2, ExternalLink, Save, X, FileText, Search, Settings, Layout, List, DollarSign, Zap, MessageSquare } from "lucide-react"
 import type { CustomPage } from "@/lib/types"
 
 const META_DESC_MAX = 160
@@ -27,7 +27,6 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
       id: `page-${Date.now()}`,
       title: "",
       slug: "",
-      content: "",
       published: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -36,13 +35,22 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
       showInNav: false,
       navLabel: "",
       showContactForm: false,
+      hero_title: "",
+      hero_description: "",
+      services: [],
+      pricing_text: "",
+      advanced_features: "",
+      cta_text: "",
     }
     setEditingPage(newPage)
     setShowForm(true)
   }
 
   const handleEditPage = (page: CustomPage) => {
-    setEditingPage({ ...page })
+    setEditingPage({
+      ...page,
+      services: Array.isArray(page.services) ? page.services.map((s) => ({ title: s.title ?? "", bullets: Array.isArray(s.bullets) ? s.bullets : [] })) : [],
+    })
     setShowForm(true)
   }
 
@@ -55,8 +63,8 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
   const handleSavePage = () => {
     if (!editingPage) return
 
-    if (!editingPage.title || !editingPage.slug || !editingPage.content) {
-      alert("Please fill in title, slug, and content")
+    if (!editingPage.title || !editingPage.slug) {
+      alert("Please fill in title and slug")
       return
     }
 
@@ -165,23 +173,160 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
                 </CardContent>
               </Card>
 
-              {/* Content */}
+              {/* Hero */}
               <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
                 <CardHeader className="pb-4 border-b border-white/10">
                   <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
-                    <PenLine className="w-4 h-4 text-blue-400" />
-                    Content
+                    <Layout className="w-4 h-4 text-blue-400" />
+                    Hero
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Hero title</Label>
+                    <input
+                      type="text"
+                      value={editingPage.hero_title ?? ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, hero_title: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="e.g. Website Upgrades & Ongoing Maintenance"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Hero description</Label>
+                    <textarea
+                      value={editingPage.hero_description ?? ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, hero_description: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm resize-y"
+                      placeholder="Short intro below the hero title"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Services */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <List className="w-4 h-4 text-blue-400" />
+                    Services
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                  {(editingPage.services ?? []).map((svc, idx) => (
+                    <div key={idx} className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <input
+                          type="text"
+                          value={svc.title}
+                          onChange={(e) => {
+                            const next = [...(editingPage.services ?? [])]
+                            next[idx] = { ...next[idx], title: e.target.value }
+                            setEditingPage({ ...editingPage, services: next })
+                          }}
+                          className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          placeholder="Service title"
+                        />
+                        <Button type="button" variant="ghost" size="sm" className="text-red-400 hover:text-red-300 shrink-0" onClick={() => setEditingPage({ ...editingPage, services: (editingPage.services ?? []).filter((_, i) => i !== idx) })}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-xs text-gray-400">Bullet points (one per line)</span>
+                        {(svc.bullets ?? []).map((bullet, bi) => (
+                          <div key={bi} className="flex gap-2">
+                            <input
+                              type="text"
+                              value={bullet}
+                              onChange={(e) => {
+                                const next = [...(editingPage.services ?? [])]
+                                const b = [...(next[idx].bullets ?? [])]
+                                b[bi] = e.target.value
+                                next[idx] = { ...next[idx], bullets: b }
+                                setEditingPage({ ...editingPage, services: next })
+                              }}
+                              className="flex-1 px-3 py-1.5 bg-white/10 border border-white/20 rounded text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              placeholder="Bullet point"
+                            />
+                            <Button type="button" variant="ghost" size="sm" className="text-red-400 hover:text-red-300 shrink-0" onClick={() => setEditingPage({ ...editingPage, services: (editingPage.services ?? []).map((s, i) => i === idx ? { ...s, bullets: (s.bullets ?? []).filter((_, b) => b !== bi) } : s) })}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button type="button" variant="outline" size="sm" className="border-white/20 text-gray-300" onClick={() => setEditingPage({ ...editingPage, services: (editingPage.services ?? []).map((s, i) => i === idx ? { ...s, bullets: [...(s.bullets ?? []), ""] } : s) })}>
+                          <Plus className="w-3 h-3 mr-1" /> Add bullet
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="border-white/20 text-gray-300 w-full" onClick={() => setEditingPage({ ...editingPage, services: [...(editingPage.services ?? []), { title: "", bullets: [] }] })}>
+                    <Plus className="w-4 h-4 mr-2" /> Add service
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Pricing */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <DollarSign className="w-4 h-4 text-blue-400" />
+                    Pricing
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="space-y-2">
-                    <Label className="text-[15px] font-medium text-gray-200">Page content *</Label>
+                    <Label className="text-[15px] font-medium text-gray-200">Pricing text</Label>
                     <textarea
-                      value={editingPage.content}
-                      onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
-                      rows={16}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono text-sm min-h-[320px] resize-y"
-                      placeholder="Enter content (HTML and Markdown supported)"
+                      value={editingPage.pricing_text ?? ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, pricing_text: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm resize-y"
+                      placeholder="Describe pricing or packages"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Advanced features */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <Zap className="w-4 h-4 text-blue-400" />
+                    Advanced features
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Advanced features / details</Label>
+                    <textarea
+                      value={editingPage.advanced_features ?? ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, advanced_features: e.target.value })}
+                      rows={5}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm resize-y"
+                      placeholder="Additional details or feature list"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CTA */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <MessageSquare className="w-4 h-4 text-blue-400" />
+                    Call to action
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">CTA text</Label>
+                    <input
+                      type="text"
+                      value={editingPage.cta_text ?? ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, cta_text: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="e.g. Ready to get started? Get in touch."
                     />
                   </div>
                 </CardContent>
@@ -336,7 +481,10 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
                   </Badge>
                 </div>
                 <p className="text-sm text-gray-400">Slug: /pages/{page.slug}</p>
-                <p className="text-sm text-gray-400 line-clamp-2">{page.content.substring(0, 100)}...</p>
+                <p className="text-sm text-gray-400 line-clamp-2">
+                  {(page.hero_description ?? page.hero_title ?? page.content ?? "").toString().slice(0, 100)}
+                  {(page.hero_description ?? page.hero_title ?? page.content ?? "").toString().length > 100 ? "..." : ""}
+                </p>
                 <a
                   href={`/pages/${page.slug}`}
                   target="_blank"
