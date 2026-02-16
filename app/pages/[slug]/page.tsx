@@ -1,120 +1,85 @@
-import { notFound } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, notFound } from "next/navigation"
 import Link from "next/link"
 import type { CustomPage } from "@/lib/types"
 
-// Always run at request time so we read from Redis/API, not build-time empty data
-export const dynamic = "force-dynamic"
+export default function CustomPageRoute() {
+  const params = useParams()
+  const slug = (params?.slug as string) || ""
+  const [page, setPage] = useState<CustomPage | null | undefined>(undefined)
+  const [status, setStatus] = useState<"loading" | "found" | "notfound">("loading")
 
-const KV_KEY = "portfolio:pages"
-
-// Try to import Upstash Redis
-let redis: any = null
-try {
-  const { Redis } = require("@upstash/redis")
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
-  if (redisUrl && redisToken) {
-    redis = new Redis({
-      url: redisUrl,
-      token: redisToken,
-    })
-  }
-} catch {
-  // Redis not available
-}
-
-async function getPages(): Promise<CustomPage[]> {
-  let pages: CustomPage[] = []
-
-  if (redis) {
-    try {
-      const redisData = (await redis.get(KV_KEY)) as CustomPage[] | null
-      if (redisData && Array.isArray(redisData)) {
-        pages = redisData
+  useEffect(() => {
+    if (!slug) {
+      setStatus("notfound")
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch("/api/pages", { cache: "no-store" })
+        if (!res.ok) {
+          if (!cancelled) setStatus("notfound")
+          return
+        }
+        const data = await res.json()
+        const pages: CustomPage[] = data.data?.pages ?? data.pages ?? []
+        const normalizedSlug = slug.trim().toLowerCase()
+        const found = pages.find(
+          (p) =>
+            (p.slug || "").trim().toLowerCase() === normalizedSlug && p.published
+        )
+        if (cancelled) return
+        if (found) {
+          setPage(found)
+          setStatus("found")
+        } else {
+          setStatus("notfound")
+        }
+      } catch {
+        if (!cancelled) setStatus("notfound")
       }
-    } catch (e) {
-      console.error("Redis get error:", e)
+    })()
+    return () => {
+      cancelled = true
     }
-    return pages
-  }
+  }, [slug])
 
-  // Only when Redis is not configured: try public API (e.g. local dev).
-  // Do not fetch when Redis exists but is empty — self-fetch can 401 on Vercel
-  // (preview deployment protection), and Redis is the single source of truth.
-  try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-    const response = await fetch(`${baseUrl}/api/pages`, { cache: "no-store" })
-    if (response.ok) {
-      const data = await response.json()
-      pages = data.data?.pages || data.pages || []
-    }
-  } catch (e) {
-    console.error("API pages fallback error:", e)
-  }
-
-  return pages
-}
-
-async function getPage(slug: string): Promise<CustomPage | null> {
-  try {
-    const pages = await getPages()
-    const normalizedSlug = slug.trim().toLowerCase()
+  if (status === "loading") {
     return (
-      pages.find(
-        (p) =>
-          (p.slug || "").trim().toLowerCase() === normalizedSlug && p.published
-      ) || null
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-gray-400">Loading...</div>
+      </div>
     )
-  } catch (error) {
-    console.error("Error fetching page:", error)
-    return null
   }
-}
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const page = await getPage(slug)
-  
-  if (!page) {
-    return {
-      title: "Page Not Found",
-    }
-  }
-  
-  return {
-    title: page.title,
-    description: page.metaDescription || page.content.substring(0, 160),
-    keywords: page.metaKeywords?.split(",").map((k) => k.trim()),
-  }
-}
-
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const page = await getPage(slug)
-  
-  if (!page) {
+  if (status === "notfound" || !page) {
     notFound()
   }
 
-  // Strip script tags to avoid "Unexpected token 'export'" and XSS when content is pasted
-  const safeContent = page.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+  const safeContent = page.content.replace(
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    ""
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto px-6 py-16">
         <article className="max-w-4xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{page.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              {page.title}
+            </h1>
             <div className="flex items-center gap-4 text-gray-400 text-sm">
               <time dateTime={page.updatedAt}>
                 Last updated: {new Date(page.updatedAt).toLocaleDateString()}
               </time>
             </div>
           </header>
-          
-          <div 
+
+          <div
             className="prose prose-invert prose-lg max-w-none
               prose-headings:text-white
               prose-p:text-gray-300
