@@ -70,7 +70,6 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" as="image" href="/images/ian-portrait.jpg" imageSrcSet="/images/ian-portrait.jpg 1x" />
       </head>
       <body className={inter.className}>
         <Suspense fallback={<div>Loading...</div>}>

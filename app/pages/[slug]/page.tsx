@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import type { CustomPage } from "@/lib/types"
 
 // Next.js 15 requires params to be a Promise
@@ -46,7 +47,8 @@ async function getPage(slug: string): Promise<CustomPage | null> {
       }
     }
     
-    return pages.find((p) => p.slug === slug && p.published) || null
+    const normalizedSlug = slug.trim().toLowerCase()
+    return pages.find((p) => (p.slug || "").trim().toLowerCase() === normalizedSlug && p.published) || null
   } catch (error) {
     console.error("Error fetching page:", error)
     return null
@@ -77,7 +79,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   if (!page) {
     notFound()
   }
-  
+
+  // Strip script tags to avoid "Unexpected token 'export'" and XSS when content is pasted
+  const safeContent = page.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto px-6 py-16">
@@ -102,8 +107,23 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
               prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-300
               prose-ul:text-gray-300 prose-ol:text-gray-300
               prose-li:text-gray-300"
-            dangerouslySetInnerHTML={{ __html: page.content }}
+            dangerouslySetInnerHTML={{ __html: safeContent }}
           />
+
+          {page.showContactForm && (
+            <section id="contact" className="mt-16 pt-12 border-t border-white/10">
+              <h2 className="text-2xl font-bold text-white mb-4">Contact me</h2>
+              <p className="text-gray-300 mb-6">
+                Have a project in mind or want to work together? Get in touch.
+              </p>
+              <Link
+                href="/#contact"
+                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                Go to contact form
+              </Link>
+            </section>
+          )}
         </article>
       </div>
     </div>

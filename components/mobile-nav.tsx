@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Menu, X, Download, Github } from "lucide-react"
 import Link from "next/link"
 
-export function MobileNav() {
+interface MobileNavProps {
+  /** Custom pages to show in nav (e.g. from admin "Show in navigation") */
+  extraLinks?: { href: string; label: string }[]
+}
+
+export function MobileNav({ extraLinks = [] }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const toggleMenu = () => setIsOpen(!isOpen)
@@ -14,6 +19,7 @@ export function MobileNav() {
   const menuItems = [
     { href: "#about", label: "About" },
     { href: "#projects", label: "Projects" },
+    ...extraLinks,
     { href: "#contact", label: "Contact" },
     { href: "/projects", label: "All Projects" },
   ]

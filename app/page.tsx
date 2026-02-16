@@ -11,7 +11,10 @@ import Link from "next/link"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 const AboutSection = dynamic(() => import("@/components/home/AboutSection"), { ssr: false })
-const MobileNav = dynamic(() => import("@/components/mobile-nav").then(m => m.MobileNav), { ssr: false })
+const MobileNav = dynamic<{ extraLinks?: { href: string; label: string }[] }>(
+  () => import("@/components/mobile-nav").then((m) => m.MobileNav),
+  { ssr: false }
+)
 const ContactForm = dynamic(() => import("@/components/contact-form").then(m => m.ContactForm), { ssr: false })
 
 interface Project {
@@ -42,6 +45,7 @@ export default function Portfolio() {
   const [projectsVisible, setProjectsVisible] = useState(false)
   const [aboutVisible, setAboutVisible] = useState(false)
   const [contactVisible, setContactVisible] = useState(false)
+  const [navPages, setNavPages] = useState<{ href: string; label: string }[]>([])
   const projectsRef = (typeof document !== "undefined" ? (document.getElementById("projects-section") as HTMLElement | null) : null)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
@@ -94,9 +98,10 @@ export default function Portfolio() {
     const load = () => {
       ;(async () => {
         try {
-          const [projectsRes, contentRes] = await Promise.all([
+          const [projectsRes, contentRes, pagesRes] = await Promise.all([
             fetch("/api/projects", { cache: "no-store" }),
-            fetch("/api/content", { cache: "no-store" })
+            fetch("/api/content", { cache: "no-store" }),
+            fetch("/api/pages", { cache: "no-store" }).catch(() => null)
           ])
           const projectsData = await projectsRes.json()
           const contentData = await contentRes.json()
@@ -105,6 +110,16 @@ export default function Portfolio() {
             const content = contentData.data || contentData
             setHeroContent(content.hero)
             setAboutContent(content.about)
+          }
+          if (pagesRes?.ok) {
+            const pagesData = await pagesRes.json()
+            const pages = pagesData.data?.pages || pagesData.pages || []
+            type NavPage = { slug: string; title: string; published?: boolean; showInNav?: boolean; navLabel?: string }
+            const links = (pages as NavPage[])
+              .filter((p) => p.published)
+              .filter((p) => p.showInNav)
+              .map((p) => ({ href: `/pages/${p.slug}`, label: (p.navLabel || p.title || p.slug) || "Page" }))
+            setNavPages(links)
           }
         } catch (error) {
           console.error("Failed to load data:", error)
@@ -211,6 +226,16 @@ export default function Portfolio() {
             <Link prefetch={false} href="/projects" className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all">
               Projects
             </Link>
+            {navPages.map((item) => (
+              <Link
+                key={item.href}
+                prefetch={false}
+                href={item.href}
+                className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
+              >
+                {item.label}
+              </Link>
+            ))}
             <Link 
               prefetch={false} 
               href="#contact" 
@@ -234,7 +259,7 @@ export default function Portfolio() {
           </div>
 
           {/* Mobile Navigation */}
-          <MobileNav />
+          <MobileNav extraLinks={navPages} />
         </div>
       </motion.nav>
 

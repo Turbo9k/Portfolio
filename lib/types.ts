@@ -111,4 +111,10 @@ export interface CustomPage {
   updatedAt: string
   metaDescription?: string
   metaKeywords?: string
+  /** Show this page in the main site navigation */
+  showInNav?: boolean
+  /** Label for nav link (defaults to title) */
+  navLabel?: string
+  /** Show a "Contact me" section at the bottom of the page */
+  showContactForm?: boolean
 }

@@ -29,6 +29,9 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
       updatedAt: new Date().toISOString(),
       metaDescription: "",
       metaKeywords: "",
+      showInNav: false,
+      navLabel: "",
+      showContactForm: false,
     }
     setEditingPage(newPage)
     setShowForm(true)
@@ -180,6 +183,44 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
               />
               <label htmlFor="published" className="text-sm text-gray-300">
                 Published (visible on website)
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="showInNav"
+                checked={editingPage.showInNav ?? false}
+                onChange={(e) => setEditingPage({ ...editingPage, showInNav: e.target.checked })}
+                className="w-4 h-4"
+              />
+              <label htmlFor="showInNav" className="text-sm text-gray-300">
+                Show in navigation bar
+              </label>
+            </div>
+            {editingPage.showInNav && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Nav label (optional)</label>
+                <input
+                  type="text"
+                  value={editingPage.navLabel ?? ""}
+                  onChange={(e) => setEditingPage({ ...editingPage, navLabel: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="e.g. Website Upgrades"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="showContactForm"
+                checked={editingPage.showContactForm ?? false}
+                onChange={(e) => setEditingPage({ ...editingPage, showContactForm: e.target.checked })}
+                className="w-4 h-4"
+              />
+              <label htmlFor="showContactForm" className="text-sm text-gray-300">
+                Show &quot;Contact me&quot; section on this page
               </label>
             </div>
 
