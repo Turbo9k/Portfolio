@@ -11,10 +11,13 @@ import {
   Code2,
   Layers,
   CheckCircle2,
-  MessageSquare,
+  Clock,
+  ShieldCheck,
+  TrendingUp,
 } from "lucide-react"
 import type { CustomPage } from "@/lib/types"
 import { SiteNav } from "@/components/site-nav"
+import { CallToAction } from "@/components/call-to-action"
 
 const SERVICE_ICONS = [Wrench, Zap, Shield, Settings, Code2, Layers]
 
@@ -110,6 +113,54 @@ export default function CustomPageRoute() {
 
         {hasStructured ? (
           <div className="space-y-24 pb-24">
+            {/* Benefits – 3 columns below hero */}
+            <section className="max-w-6xl mx-auto px-4 sm:px-6">
+              <h2 className="text-3xl font-bold text-white text-center mb-4">
+                Why Ongoing Website Management Matters
+              </h2>
+              <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+                Professional care for your site so you can focus on what matters.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="rounded-xl bg-white/5 border border-white/10 p-6 shadow-lg transition-all duration-200 hover:bg-white/10 hover:shadow-xl hover:-translate-y-0.5">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 mb-4">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Save Time
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Focus on running your business while your website is
+                    professionally maintained behind the scenes.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/5 border border-white/10 p-6 shadow-lg transition-all duration-200 hover:bg-white/10 hover:shadow-xl hover:-translate-y-0.5">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 mb-4">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Stay Secure & Reliable
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Proactive monitoring, updates, and infrastructure management
+                    reduce risk and downtime.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/5 border border-white/10 p-6 shadow-lg transition-all duration-200 hover:bg-white/10 hover:shadow-xl hover:-translate-y-0.5">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 mb-4">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Improve Performance
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Ongoing optimization keeps your site fast, responsive, and
+                    conversion-ready.
+                  </p>
+                </div>
+              </div>
+            </section>
+
             {/* Services – card grid */}
             {Array.isArray(page.services) && page.services.length > 0 && (
               <section className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -212,20 +263,14 @@ export default function CustomPageRoute() {
               )
             })()}
 
-            {/* CTA – distinct section with strong button */}
+            {/* CTA – reusable component */}
             {(page.cta_text ?? "") !== "" && (
-              <section className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-                <p className="text-2xl sm:text-3xl font-semibold text-white mb-8">
-                  {page.cta_text}
-                </p>
-                <Link
-                  href="/#contact"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 text-white font-semibold shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 active:scale-100"
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  Get in touch
-                </Link>
-              </section>
+              <CallToAction
+                title={page.cta_text!}
+                primaryButtonText="Get in touch"
+                primaryButtonLink="/#contact"
+                darkMode={true}
+              />
             )}
           </div>
         ) : (
