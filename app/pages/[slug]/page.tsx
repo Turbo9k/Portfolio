@@ -69,14 +69,9 @@ export default function CustomPageRoute() {
       <div className="container mx-auto px-6 py-16">
         <article className="max-w-4xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-white">
               {page.title}
             </h1>
-            <div className="flex items-center gap-4 text-gray-400 text-sm">
-              <time dateTime={page.updatedAt}>
-                Last updated: {new Date(page.updatedAt).toLocaleDateString()}
-              </time>
-            </div>
           </header>
 
           <div

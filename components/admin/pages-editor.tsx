@@ -4,8 +4,12 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, ExternalLink, Save, X } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Plus, Edit, Trash2, ExternalLink, Save, X, FileText, PenLine, Search, Settings } from "lucide-react"
 import type { CustomPage } from "@/lib/types"
+
+const META_DESC_MAX = 160
 
 interface PagesEditorProps {
   pages: CustomPage[]
@@ -118,129 +122,184 @@ export function PagesEditor({ pages: initialPages, onSave, onClose }: PagesEdito
       </div>
 
       {showForm && editingPage && (
-        <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white">{editingPage.id.startsWith("page-") && !pages.find((p) => p.id === editingPage.id) ? "Add New Page" : "Edit Page"}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Title *</label>
-              <input
-                type="text"
-                value={editingPage.title}
-                onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Page Title"
-              />
+        <div className="max-w-[1000px] mx-auto">
+          <div className="text-white font-semibold text-lg mb-6">
+            {editingPage.id.startsWith("page-") && !pages.find((p) => p.id === editingPage.id) ? "Add New Page" : "Edit Page"}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8">
+            {/* Left column: Basics + Content */}
+            <div className="space-y-6">
+              {/* Page Basics */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <FileText className="w-4 h-4 text-blue-400" />
+                    Page Basics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Page Title *</Label>
+                    <input
+                      type="text"
+                      value={editingPage.title}
+                      onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-shadow"
+                      placeholder="e.g. Website Upgrades & Maintenance"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Slug *</Label>
+                    <input
+                      type="text"
+                      value={editingPage.slug}
+                      onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono text-sm"
+                      placeholder="website-upgrades"
+                    />
+                    <p className="text-xs text-gray-500">
+                      URL format: lowercase letters, numbers, and hyphens only. Live URL: <span className="text-gray-400 font-mono">/pages/{editingPage.slug || "your-slug"}</span>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Content */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <PenLine className="w-4 h-4 text-blue-400" />
+                    Content
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Page content *</Label>
+                    <textarea
+                      value={editingPage.content}
+                      onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
+                      rows={16}
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono text-sm min-h-[320px] resize-y"
+                      placeholder="Enter content (HTML and Markdown supported)"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Slug *</label>
-              <input
-                type="text"
-                value={editingPage.slug}
-                onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="page-slug (lowercase, no spaces)"
-              />
-              <p className="mt-1 text-xs text-gray-400">URL: /pages/{editingPage.slug || "page-slug"}</p>
-            </div>
+            {/* Right column: SEO + Visibility */}
+            <div className="space-y-6 lg:pt-0">
+              {/* SEO Settings */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <Search className="w-4 h-4 text-blue-400" />
+                    SEO Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Meta Description</Label>
+                    <textarea
+                      value={editingPage.metaDescription || ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, metaDescription: e.target.value.slice(0, META_DESC_MAX) })}
+                      rows={3}
+                      maxLength={META_DESC_MAX}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm resize-y"
+                      placeholder="Short description for search results"
+                    />
+                    <p className="text-xs text-gray-500">
+                      {(editingPage.metaDescription || "").length}/{META_DESC_MAX} characters
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[15px] font-medium text-gray-200">Meta Keywords</Label>
+                    <input
+                      type="text"
+                      value={editingPage.metaKeywords || ""}
+                      onChange={(e) => setEditingPage({ ...editingPage, metaKeywords: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm"
+                      placeholder="keyword1, keyword2, keyword3"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Content *</label>
-              <textarea
-                value={editingPage.content}
-                onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
-                rows={15}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 font-mono text-sm"
-                placeholder="Enter page content (supports HTML and Markdown)"
-              />
-            </div>
+              {/* Visibility & Display */}
+              <Card className="bg-white/5 border-white/10 shadow-lg rounded-xl overflow-hidden">
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="text-white flex items-center gap-2 text-base font-semibold">
+                    <Settings className="w-4 h-4 text-blue-400" />
+                    Visibility & Display
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="published" className="text-[15px] font-medium text-gray-200 cursor-pointer flex-1">
+                      Published
+                    </Label>
+                    <Switch
+                      id="published"
+                      checked={editingPage.published}
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, published: checked })}
+                      className="data-[state=checked]:bg-green-500"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 -mt-3">Visible on the live site when on</p>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Meta Description</label>
-              <input
-                type="text"
-                value={editingPage.metaDescription || ""}
-                onChange={(e) => setEditingPage({ ...editingPage, metaDescription: e.target.value })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="SEO meta description"
-              />
-            </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="showInNav" className="text-[15px] font-medium text-gray-200 cursor-pointer flex-1">
+                      Show in navigation bar
+                    </Label>
+                    <Switch
+                      id="showInNav"
+                      checked={editingPage.showInNav ?? false}
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, showInNav: checked })}
+                      className="data-[state=checked]:bg-blue-500"
+                    />
+                  </div>
+                  {editingPage.showInNav && (
+                    <div className="space-y-2 -mt-2">
+                      <Label className="text-sm font-medium text-gray-300">Nav label (optional)</Label>
+                      <input
+                        type="text"
+                        value={editingPage.navLabel ?? ""}
+                        onChange={(e) => setEditingPage({ ...editingPage, navLabel: e.target.value })}
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        placeholder="e.g. Website Upgrades"
+                      />
+                    </div>
+                  )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Meta Keywords</label>
-              <input
-                type="text"
-                value={editingPage.metaKeywords || ""}
-                onChange={(e) => setEditingPage({ ...editingPage, metaKeywords: e.target.value })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="keyword1, keyword2, keyword3"
-              />
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="showContactForm" className="text-[15px] font-medium text-gray-200 cursor-pointer flex-1">
+                      Show &quot;Contact me&quot; section
+                    </Label>
+                    <Switch
+                      id="showContactForm"
+                      checked={editingPage.showContactForm ?? false}
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, showContactForm: checked })}
+                      className="data-[state=checked]:bg-blue-500"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 -mt-3">Adds a contact CTA at the bottom of the page</p>
+                </CardContent>
+              </Card>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="published"
-                checked={editingPage.published}
-                onChange={(e) => setEditingPage({ ...editingPage, published: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="published" className="text-sm text-gray-300">
-                Published (visible on website)
-              </label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="showInNav"
-                checked={editingPage.showInNav ?? false}
-                onChange={(e) => setEditingPage({ ...editingPage, showInNav: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="showInNav" className="text-sm text-gray-300">
-                Show in navigation bar
-              </label>
-            </div>
-            {editingPage.showInNav && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Nav label (optional)</label>
-                <input
-                  type="text"
-                  value={editingPage.navLabel ?? ""}
-                  onChange={(e) => setEditingPage({ ...editingPage, navLabel: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="e.g. Website Upgrades"
-                />
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="showContactForm"
-                checked={editingPage.showContactForm ?? false}
-                onChange={(e) => setEditingPage({ ...editingPage, showContactForm: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="showContactForm" className="text-sm text-gray-300">
-                Show &quot;Contact me&quot; section on this page
-              </label>
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={handleSavePage} className="bg-green-500 hover:bg-green-600">
-                <Save className="w-4 h-4 mr-2" />
-                Save Page
-              </Button>
-              <Button variant="outline" onClick={handleCancel} className="border-white/20">
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Action bar */}
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3 justify-end">
+            <Button variant="outline" onClick={handleCancel} className="border-white/20 text-gray-300 hover:bg-white/10 order-2 sm:order-1">
+              Cancel
+            </Button>
+            <Button onClick={handleSavePage} className="bg-blue-600 hover:bg-blue-700 text-white font-medium order-1 sm:order-2">
+              <Save className="w-4 h-4 mr-2" />
+              Save Page
+            </Button>
+          </div>
+        </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
